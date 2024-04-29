@@ -55,7 +55,7 @@ const Layout = () => {
             {user ? (
               <button
                 className="btn btn-outline-success"
-                onClick={() => userManager.signoutRedirectCallback()}
+                onClick={() => userManager.signoutPopup()}
               >
                 Log Out
               </button>

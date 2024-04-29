@@ -1,108 +1,44 @@
-import { useEffect, useState } from "react";
-import { LegalPractitionersService } from "../services";
-import { useQuery } from "react-query";
-
-
-interface LegalPractitioner {
-  id: number;
-  name: string;
-  email: string;
-  avatar?: string;
-}
+import { CSSProperties, useState } from "react";
+import { useLegalPractitioners } from "../hooks/useLegalPractitioners";
+import { useCities } from "../hooks/useCities";
+import { useLanguages } from "../hooks/useLanguages";
+import { useServices } from "../hooks/useServices";
+import { useQueryClient } from "react-query";
+import { LAWAYERS_QUERY_KEY } from "../constants";
 
 const Lawyers = () => {
+  const [selectedServices, selectService] = useState<string[]>([""]);
+  const [selectedCity, selectCity] = useState("");
+  const [selectedLang, selectLang] = useState([""]);
 
-  const { data: lawyerResponse, isLoading } = useQuery({
-    queryFn: () => LegalPractitionersService.getApiV1Legalpractitioners(),
-    queryKey: "legalPractitioner",
-  });
-
-  // TODO fetch for API
-  const listOfLawyers: LegalPractitioner[] = [
-    { id: 1, name: "Jonas Asare", email: "jonas@gamil.com", avatar: "" },
-    { id: 2, name: "Maafia Asare", email: "Maafia@gamil.com", avatar: "" },
-    { id: 3, name: "Felicia Asare", email: "felicia@gamil.com", avatar: "" },
-    {
-      id: 4,
-      name: "Kwesi Asare",
-      email: "kwasi@gamil.com",
-      avatar: "https://placehold.co/400",
-    },
-    {
-      id: 5,
-      name: "Kwesi Asare",
-      email: "kwasi@gamil.com",
-      avatar: "https://placehold.co/400",
-    },
-    {
-      id: 6,
-      name: "Kwesi Asare",
-      email: "kwasi@gamil.com",
-      avatar: "https://placehold.co/400",
-    },
-    {
-      id: 7,
-      name: "Kwesi Asare",
-      email: "kwasi@gamil.com",
-      avatar: "https://placehold.co/400",
-    },
-    {
-      id: 8,
-      name: "Kwesi Asare",
-      email: "kwasi@gamil.com",
-      avatar: "https://placehold.co/400",
-    },
-    {
-      id: 9,
-      name: "Kwesi Asare",
-      email: "kwasi@gamil.com",
-      avatar: "https://placehold.co/400",
-    },
-    {
-      id: 10,
-      name: "Kwesi Asare",
-      email: "kwasi@gamil.com",
-      avatar: "https://placehold.co/400",
-    },
-    {
-      id: 11,
-      name: "Kwesi Asare",
-      email: "kwasi@gamil.com",
-      avatar: "https://placehold.co/400",
-    },
-    {
-      id: 12,
-
-      name: "Kwesi Asare",
-      email: "kwasi@gamil.com",
-      avatar: "https://placehold.co/400",
-    },
-    {
-      id: 13,
-      name: "Kwesi Asare",
-      email: "kwasi@gamil.com",
-      avatar: "https://placehold.co/400",
-    },
-    {
-      id: 14,
-      name: "Kwesi Asare",
-      email: "kwasi@gamil.com",
-      avatar: "https://placehold.co/400",
-    },
-  ];
-
-  // TODO fetc list of API
-  const languages: string[] = ["English", "Yuroba", "French"];
-  const cities: string[] = ["Ife", "Lagos"];
-  const services: string[] = ["Licences", "Probono", "Legal Aid"];
+  const queryClient = useQueryClient();
+  const {
+    data: lawyerResponse,
+    isLoading,
+  } = useLegalPractitioners(selectedLang, selectedCity, selectedServices);
+  const { data: cities } = useCities();
+  const { data: languages } = useLanguages();
+  const { data: services } = useServices();
 
   const [shouldShowCities, showCities] = useState(true);
-  const [shouldShowLangauges, showLanguages] = useState(true);
-  const [shouldShowService, showServices] = useState(true);
+  const [shouldShowLangauges, showLanguages] = useState(false);
+  const [shouldShowService, showServices] = useState(false);
 
+  const sidebarStyles: CSSProperties =  {
+    position: "fixed",
+    top: "95px",
+    bottom: 0,
+    left: 0,
+    width: "250px",
+    padding: "20px",
+    overflowY: "scroll"
+  }
+  const mainContentStyle: CSSProperties = {
+      marginLeft: "270px" /* Adjust based on sidebar width */
+  }
   return (
     <div className="row">
-      <div className="col-md-2 col-sm-12">
+      <div className="col-md-2 col-sm-12" style={sidebarStyles}>
         <h2>Filters</h2>
         <div className="accordion">
           <div className="accordion-item">
@@ -129,18 +65,36 @@ const Lawyers = () => {
             >
               <div className="accordion-body">
                 <div>
-                  {cities.map((city) => (
+                  {cities?.result?.map((city) => (
                     <div>
                       <label key={city} style={{ cursor: "pointer" }}>
                         <input
-                          type="checkbox"
-                          name="checkboxName"
-                          id="checkboxId"
+                          type="radio"
+                          name="cities"
+                          onChange={(e) => {
+                            selectCity((_) => {
+                              e.target.checked;
+                              return city;
+                            });
+                            queryClient.invalidateQueries({
+                              queryKey: [LAWAYERS_QUERY_KEY],
+                            });
+                          }}
                         />
                         {city}
                       </label>
                     </div>
                   ))}
+                  {cities?.result?.length && (
+                    <a
+                      href=""
+                      onClick={() => {
+                        selectCity("");
+                      }}
+                    >
+                      Clear
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
@@ -168,18 +122,36 @@ const Lawyers = () => {
               }
             >
               <div className="accordion-body">
-                {languages.map((lang) => (
+                {languages?.result?.map((lang) => (
                   <div>
                     <label key={lang} style={{ cursor: "pointer" }}>
                       <input
                         type="checkbox"
-                        name="checkboxName"
-                        id="checkboxId"
+                        onChange={(e) => {
+                          selectLang((prev) =>
+                            e.target.checked
+                              ? [...prev, lang]
+                              : [...prev].filter((m) => m !== lang)
+                          );
+                          queryClient.invalidateQueries({
+                            queryKey: [LAWAYERS_QUERY_KEY],
+                          });
+                        }}
                       />
                       {lang}
                     </label>
                   </div>
                 ))}
+                {languages?.result?.length && (
+                  <a
+                    href=""
+                    onClick={() => {
+                      selectLang([]);
+                    }}
+                  >
+                    Clear
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -206,29 +178,47 @@ const Lawyers = () => {
               }
             >
               <div className="accordion-body">
-                {services.map((service) => (
+                {services?.result?.data?.map((service) => (
                   <div>
-                    <label key={service} style={{ cursor: "pointer" }}>
+                    <label key={service.id} style={{ cursor: "pointer" }}>
                       <input
                         type="checkbox"
-                        name="checkboxName"
-                        id="checkboxId"
+                        onChange={(e) => {
+                          selectService((prev) =>
+                            e.target.checked
+                              ? [...prev, service.title ?? ""]
+                              : [...prev].filter((m) => m !== service.title)
+                          );
+                          queryClient.invalidateQueries({
+                            queryKey: [LAWAYERS_QUERY_KEY],
+                          });
+                        }}
                       />
-                      {service}
+                      {service.title}
                     </label>
                   </div>
                 ))}
+                {services?.result?.totalCount && (
+                  <a
+                    href=""
+                    onClick={() => {
+                      selectService([]);
+                    }}
+                  >
+                    Clear
+                  </a>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="col-md-10 col-sm-12 row">
+      <div className="col-md-10 col-sm-12 row" style={mainContentStyle}>
         <h2>List of Lawyers</h2>
         {isLoading ? (
           <p>Loading</p>
-        ) : 
-        lawyerResponse?.result?.data ? (
+        ) : lawyerResponse?.result?.data &&
+          lawyerResponse?.result?.data.length ? (
           lawyerResponse?.result?.data.map((item) => {
             return (
               <div
@@ -244,7 +234,7 @@ const Lawyers = () => {
                 />
                 <div className="card-body">
                   <p className="card-text">
-                    {item.firstName} {item.lastName} 
+                    {item.firstName} {item.lastName}
                   </p>
                   <p>Rating: {item.averageRating}/5</p>
                 </div>
