@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { OpenAPI } from "./services";
 import { authorize, userManager } from "./AuthManager";
 import Callback from "./pages/Callback";
+import LawyerDetails from "./pages/LawyerDetails";
 
 OpenAPI.interceptors.response.use((response) => {
   if (response.status === 401) {
@@ -49,6 +50,7 @@ function App() {
                 <Route path="callback" element={<Callback />} />
                 <Route path="appointments" element={<AppointmentPage />} />
                 <Route path="documents" element={<DocumentPage />} />
+                <Route path="laywer-details" element={<LawyerDetails />} />
                 <Route path="*" element={<NoPage />} />
               </Route>
             </Routes>

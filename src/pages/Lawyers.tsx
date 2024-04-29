@@ -1,4 +1,5 @@
 import { CSSProperties, useState } from "react";
+import {useNavigate} from "react-router-dom";
 import { useLegalPractitioners } from "../hooks/useLegalPractitioners";
 import { useCities } from "../hooks/useCities";
 import { useLanguages } from "../hooks/useLanguages";
@@ -36,6 +37,9 @@ const Lawyers = () => {
   const mainContentStyle: CSSProperties = {
       marginLeft: "270px" /* Adjust based on sidebar width */
   }
+
+  const navigate = useNavigate();
+  
   return (
     <div className="row">
       <div className="col-md-2 col-sm-12" style={sidebarStyles}>
@@ -223,6 +227,9 @@ const Lawyers = () => {
             return (
               <div
                 key={item.userId}
+                onClick={()=>{
+                  navigate("/laywer-details",{state: {item} });
+                }}
                 className="card col-md-3 col-sm-4 col-xs-6 m-2"
                 style={{ cursor: "pointer" }}
               >

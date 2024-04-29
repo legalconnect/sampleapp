@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "sass ./src/App.scss ./src/App.css && vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "openapi-ts": "openapi-ts",
@@ -16,7 +16,8 @@
     "oidc-client-ts": "^3.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-query": "^3.39.3"
+    "react-query": "^3.39.3",
+    "sass": "^1.75.0"
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.42.1",

@@ -317,9 +317,6 @@ export class LegalPractitionersService {
             path: {
                 userId: data.userId
             },
-            query: {
-                practitionerId: data.practitionerId
-            },
             errors: {
                 400: 'Bad Request',
                 401: 'Unauthorized',

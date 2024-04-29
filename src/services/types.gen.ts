@@ -284,35 +284,35 @@ export type Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_Prac
     /**
      * Sunday schedule
      */
-    sunday?: Array<Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto> | null;
+    sunday?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[] | null;
     /**
      * Monday's schedule
      */
-    monday?: Array<Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto> | null;
+    monday?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[] | null;
     /**
      * Tuesday's schedule
      */
-    tuesday?: Array<Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto> | null;
+    tuesday?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[] | null;
     /**
      * Wednesday's schedule
      */
-    wednesday?: Array<Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto> | null;
+    wednesday?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[] | null;
     /**
      * Thursday's schedule
      */
-    thursday?: Array<Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto> | null;
+    thursday?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[] | null;
     /**
      * Friday's schedule
      */
-    friday?: Array<Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto> | null;
+    friday?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[] | null;
     /**
      * Saturday's schedule
      */
-    saturday?: Array<Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto> | null;
+    saturday?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[] | null;
     /**
      * Specific Dates out of schedule
      */
-    exceptionDates?: Array<Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_ExceptionDateDto> | null;
+    exceptionDates?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_ExceptionDateDto[] | null;
   };
 
 export type Developer_Dashboard_HttpAggregator_Contracts_Reviews_GetReviewInputDto =
@@ -1302,7 +1302,6 @@ export type $OpenApiTs = {
         /**
          * User Id of Legal Practitioner
          */
-        practitionerId?: string;
         userId: string;
       };
       res: {

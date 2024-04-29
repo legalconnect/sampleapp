@@ -54,14 +54,15 @@ const Layout = () => {
             {/* Replace with Login Button &|| Client Profile Picture when authenticated */}
             {user ? (
               <button
-                className="btn btn-outline-success"
+                className="btn btn-outline-warning"
                 onClick={() => userManager.signoutPopup()}
               >
                 Log Out
               </button>
             ) : (
               <button
-                className="btn btn-outline-success"
+                className="btn btn-warning"
+                style={{color: "white"}}
                 onClick={() => authorize()}
               >
                 Log In
