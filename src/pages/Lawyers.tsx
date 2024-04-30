@@ -1,22 +1,35 @@
 import { CSSProperties, useState } from "react";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useLegalPractitioners } from "../hooks/useLegalPractitioners";
 import { useCities } from "../hooks/useCities";
 import { useLanguages } from "../hooks/useLanguages";
 import { useServices } from "../hooks/useServices";
-import { useQueryClient } from "react-query";
-import { LAWAYERS_QUERY_KEY } from "../constants";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_GetLegalPractitionerOutputDto as LegalPractitioner } from "../services";
 
 const Lawyers = () => {
   const [selectedServices, selectService] = useState<string[]>([""]);
   const [selectedCity, selectCity] = useState("");
   const [selectedLang, selectLang] = useState([""]);
 
-  const queryClient = useQueryClient();
+  // Fetch Lawyers Page
   const {
     data: lawyerResponse,
+    fetchNextPage,
+    hasNextPage,
     isLoading,
   } = useLegalPractitioners(selectedLang, selectedCity, selectedServices);
+
+  const pages = lawyerResponse?.pages ?? [];
+
+  let lawyers: LegalPractitioner[] = [];
+
+  for (let index = 0; index < pages.length; index++) {
+    const pagedList = pages[index].data;
+    if (pagedList?.data) {
+      lawyers = [...lawyers, ...pagedList.data];
+    }
+  }
   const { data: cities } = useCities();
   const { data: languages } = useLanguages();
   const { data: services } = useServices();
@@ -25,21 +38,21 @@ const Lawyers = () => {
   const [shouldShowLangauges, showLanguages] = useState(false);
   const [shouldShowService, showServices] = useState(false);
 
-  const sidebarStyles: CSSProperties =  {
+  const sidebarStyles: CSSProperties = {
     position: "fixed",
     top: "95px",
     bottom: 0,
     left: 0,
     width: "250px",
     padding: "20px",
-    overflowY: "scroll"
-  }
+    overflowY: "scroll",
+  };
   const mainContentStyle: CSSProperties = {
-      marginLeft: "270px" /* Adjust based on sidebar width */
-  }
+    marginLeft: "270px" /* Adjust based on sidebar width */,
+  };
 
   const navigate = useNavigate();
-  
+
   return (
     <div className="row">
       <div className="col-md-2 col-sm-12" style={sidebarStyles}>
@@ -69,36 +82,21 @@ const Lawyers = () => {
             >
               <div className="accordion-body">
                 <div>
-                  {cities?.result?.map((city) => (
-                    <div>
-                      <label key={city} style={{ cursor: "pointer" }}>
+                  {cities?.map((city) => (
+                    <div key={city}>
+                      <label className="form-check-label" style={{ cursor: "pointer" }}>
                         <input
+                        className="form-check-input me-2"
                           type="radio"
                           name="cities"
-                          onChange={(e) => {
-                            selectCity((_) => {
-                              e.target.checked;
-                              return city;
-                            });
-                            queryClient.invalidateQueries({
-                              queryKey: [LAWAYERS_QUERY_KEY],
-                            });
+                          onChange={() => {
+                            selectCity(() => city);
                           }}
                         />
                         {city}
                       </label>
                     </div>
                   ))}
-                  {cities?.result?.length && (
-                    <a
-                      href=""
-                      onClick={() => {
-                        selectCity("");
-                      }}
-                    >
-                      Clear
-                    </a>
-                  )}
                 </div>
               </div>
             </div>
@@ -126,10 +124,11 @@ const Lawyers = () => {
               }
             >
               <div className="accordion-body">
-                {languages?.result?.map((lang) => (
-                  <div>
-                    <label key={lang} style={{ cursor: "pointer" }}>
+                {languages?.map((lang, index) => (
+                  <div key={lang + index}>
+                    <label className="form-check-label" style={{ cursor: "pointer" }}>
                       <input
+                      className="form-check-input me-2"
                         type="checkbox"
                         onChange={(e) => {
                           selectLang((prev) =>
@@ -137,25 +136,12 @@ const Lawyers = () => {
                               ? [...prev, lang]
                               : [...prev].filter((m) => m !== lang)
                           );
-                          queryClient.invalidateQueries({
-                            queryKey: [LAWAYERS_QUERY_KEY],
-                          });
                         }}
                       />
                       {lang}
                     </label>
                   </div>
                 ))}
-                {languages?.result?.length && (
-                  <a
-                    href=""
-                    onClick={() => {
-                      selectLang([]);
-                    }}
-                  >
-                    Clear
-                  </a>
-                )}
               </div>
             </div>
           </div>
@@ -182,10 +168,11 @@ const Lawyers = () => {
               }
             >
               <div className="accordion-body">
-                {services?.result?.data?.map((service) => (
-                  <div>
-                    <label key={service.id} style={{ cursor: "pointer" }}>
+                {services?.data?.map((service) => (
+                  <div key={service.id}>
+                    <label className="form-check-label" style={{ cursor: "pointer" }}>
                       <input
+                      className="form-check-input me-2"
                         type="checkbox"
                         onChange={(e) => {
                           selectService((prev) =>
@@ -193,67 +180,61 @@ const Lawyers = () => {
                               ? [...prev, service.title ?? ""]
                               : [...prev].filter((m) => m !== service.title)
                           );
-                          queryClient.invalidateQueries({
-                            queryKey: [LAWAYERS_QUERY_KEY],
-                          });
                         }}
                       />
                       {service.title}
                     </label>
                   </div>
                 ))}
-                {services?.result?.totalCount && (
-                  <a
-                    href=""
-                    onClick={() => {
-                      selectService([]);
-                    }}
-                  >
-                    Clear
-                  </a>
-                )}
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="col-md-10 col-sm-12 row" style={mainContentStyle}>
-        <h2>List of Lawyers</h2>
-        {isLoading ? (
-          <p>Loading</p>
-        ) : lawyerResponse?.result?.data &&
-          lawyerResponse?.result?.data.length ? (
-          lawyerResponse?.result?.data.map((item) => {
-            return (
-              <div
-                key={item.userId}
-                onClick={()=>{
-                  navigate("/laywer-details",{state: {item} });
-                }}
-                className="card col-md-3 col-sm-4 col-xs-6 m-2"
-                style={{ cursor: "pointer" }}
-              >
-                <img
-                  src={item.avatar ?? ""}
-                  className="card-img-top p-2"
-                  style={{ aspectRatio: 1, objectFit: "cover" }}
-                  alt="..."
-                />
-                <div className="card-body">
-                  <p className="card-text">
-                    {item.firstName} {item.lastName}
-                  </p>
-                  <p>Rating: {item.averageRating}/5</p>
+      <InfiniteScroll
+        dataLength={lawyerResponse ? lawyerResponse.pages.length : 0}
+        next={() => fetchNextPage()}
+        loader={<div>Loading</div>}
+        hasMore={hasNextPage ?? false}
+      >
+        <div className="col-md-10 col-sm-12 row" style={mainContentStyle}>
+          <h2>List of Lawyers</h2>
+          {isLoading ? (
+            <p>Loading</p>
+          ) : lawyers && lawyers.length ? (
+            lawyers.map((item) => {
+              return (
+                <div
+                  key={item.userId}
+                  onClick={() => {
+                    navigate("/laywer-details", { state: { item } });
+                  }}
+                  className="card col-md-3 col-sm-4 col-xs-6 m-2"
+                  style={{ cursor: "pointer" }}
+                >
+                  <img
+                    src={item.avatar ?? ""}
+                    className="card-img-top p-2"
+                    style={{ aspectRatio: 1, objectFit: "cover" }}
+                    alt="..."
+                  />
+                  <div className="card-body">
+                    <p className="card-text">
+                      {item.firstName} {item.lastName}
+                    </p>
+                    <p>Rating: {item.averageRating}/5</p>
+                  </div>
                 </div>
-              </div>
-            );
-          })
-        ) : (
-          <p>No Lawyers Found</p>
-        )}
-      </div>
+              );
+            })
+          ) : (
+            <p>No Lawyers Found</p>
+          )}
+        </div>
+      </InfiniteScroll>
     </div>
   );
+
 };
 
 export default Lawyers;
