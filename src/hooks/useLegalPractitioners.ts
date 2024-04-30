@@ -1,4 +1,4 @@
-import { useQuery } from "react-query";
+import { useQuery,useInfiniteQuery } from "react-query";
 import { LegalPractitionersService } from "../services";
 import { LAWAYERS_QUERY_KEY, LAWAYERS_SCHEDULE_QUERY_KEY } from "../constants";
 
@@ -7,15 +7,26 @@ export const useLegalPractitioners = (
   city?: string,
   services?: string[]
 ) => {
-  return useQuery({
-    queryFn: () =>
-      LegalPractitionersService.getApiV1Legalpractitioners({
+  return useInfiniteQuery({
+    queryKey: [LAWAYERS_QUERY_KEY, languages, city, services],
+    queryFn: async ({pageParam = 1}) =>{
+
+      const response = await LegalPractitionersService.getApiV1Legalpractitioners({
         languages,
         location: city,
         services,
-      }),
-    queryKey: [LAWAYERS_QUERY_KEY, languages, city, services],
+        page: pageParam,
+        pageSize: 9
+      });
+      return {data: response.result, totalCount:response.result?.totalCount as number,  prevPage: pageParam as number};
+    },
     cacheTime: 120000,
+    getNextPageParam: (lastPage )=>{
+      if((lastPage.prevPage * 9) >= lastPage.totalCount){
+        return false;
+      }
+      return lastPage.prevPage + 1;
+    }
   });
 };
 
