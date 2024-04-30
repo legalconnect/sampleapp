@@ -18,7 +18,7 @@ const Layout = () => {
   const [currentPage, setCurrentPage] = useState(-1);
   return (
     <>
-      <nav className="navbar navbar-expand-lg bg-body-tertiary">
+      <nav className="navbar navbar-expand-lg bg-body-tertiary fixed-top">
         <div className="container-fluid">
           <a className="navbar-brand" href="/">
             LegalConnect Online
