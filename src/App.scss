@@ -1,27 +1,57 @@
-/* import the Bootstrap */
+$lg_theme_color: #ea9211;
+
+// Required
 @import "../node_modules/bootstrap/scss/bootstrap";
-@import "../node_modules/bootstrap/scss/variables";
+
+// List Group * List Group Item variable overrides
+$list-group-active-bg:              $lg_theme_color;
+$list-group-active-border-color:    $lg_theme_color;
+$list-group-hover-bg:               $lg_theme_color;
+$list-group-action-hover-color:     white;
+
+// Required
+@import "../node_modules/bootstrap/scss/bootstrap";
 
 /* ------- customize primary button color -------- */
-$mynewcolor: #ea9211;
-$border: $mynewcolor;
+$border: $lg_theme_color;
 
 .btn-outline-warning {
   @include button-outline-variant(
-      $mynewcolor,
+      $lg_theme_color,
       #ffffff,
-      lighten($mynewcolor, 5%),
-    $mynewcolor
+      lighten($lg_theme_color, 5%),
+    $lg_theme_color
   );
 }
 
 .btn-warning {
   @include button-variant(
-    $mynewcolor,
-    darken($mynewcolor, 7.5%),
-    darken($mynewcolor, 10%),
-    lighten($mynewcolor, 5%),
-    lighten($mynewcolor, 10%),
-    darken($mynewcolor, 30%)
+    $lg_theme_color,
+    darken($lg_theme_color, 7.5%),
+    darken($lg_theme_color, 10%),
+    lighten($lg_theme_color, 5%),
+    lighten($lg_theme_color, 10%),
+    darken($lg_theme_color, 30%)
   );
+}
+
+@mixin list-group-item-variant($state, $background, $color) {
+  .list-group-item-#{$state} {
+    color: $color;
+    background-color: $background;
+
+    &.list-group-item-action {
+      &:hover,
+      &:focus {
+        color: $color;
+        background-color: shade-color($background, 10%);
+      }
+
+      &.active {
+        color: $white;
+        background-color: $color;
+        border-color: $color;
+      }
+    }
+  }
 }
