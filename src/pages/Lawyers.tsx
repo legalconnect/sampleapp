@@ -30,25 +30,25 @@ const Lawyers = () => {
       lawyers = [...lawyers, ...pagedList.data];
     }
   }
+  const { data: services } = useServices();
   const { data: cities } = useCities();
   const { data: languages } = useLanguages();
-  const { data: services } = useServices();
 
-  const [shouldShowCities, showCities] = useState(true);
+  const [shouldShowService, showServices] = useState(true);
+  const [shouldShowCities, showCities] = useState(false);
   const [shouldShowLangauges, showLanguages] = useState(false);
-  const [shouldShowService, showServices] = useState(false);
 
   const sidebarStyles: CSSProperties = {
     position: "fixed",
     top: "30px",
     bottom: 0,
     left: 0,
-    width: "250px",
+    width: "400px",
     padding: "20px",
     overflowY: "scroll",
   };
   const mainContentStyle: CSSProperties = {
-    marginLeft: "270px" /* Adjust based on sidebar width */,
+    marginLeft: "450px" /* Adjust based on sidebar width */,
   };
 
   const navigate = useNavigate();
@@ -58,6 +58,53 @@ const Lawyers = () => {
       <div style={sidebarStyles}>
         <h2>Filters</h2>
         <div className="accordion">
+        <div className="accordion-item">
+            <h2 className="accordion-header">
+              <button
+                className="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#services"
+                aria-expanded="false"
+                aria-controls="services-collapseThree"
+                onClick={() => showServices((prev) => !prev)}
+              >
+                Services
+              </button>
+            </h2>
+            <div
+              id="services"
+              className={
+                shouldShowService
+                  ? "accordion-collapse collapse show"
+                  : "accordion-collapse collapse"
+              }
+            >
+              <div className="accordion-body">
+                {services?.data?.map((service) => (
+                  <div key={service.serviceId}>
+                    <label
+                      className="form-check-label"
+                      style={{ cursor: "pointer" }}
+                    >
+                      <input
+                        className="form-check-input me-2"
+                        type="checkbox"
+                        onChange={(e) => {
+                          selectService((prev) =>
+                            e.target.checked
+                              ? [...prev, service.title ?? ""]
+                              : [...prev].filter((m) => m !== service.title)
+                          );
+                        }}
+                      />
+                      {service.title}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
           <div className="accordion-item">
             <h2 className="accordion-header">
               <button
@@ -145,53 +192,6 @@ const Lawyers = () => {
                         }}
                       />
                       {lang}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="accordion-item">
-            <h2 className="accordion-header">
-              <button
-                className="accordion-button collapsed"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#services"
-                aria-expanded="false"
-                aria-controls="services-collapseThree"
-                onClick={() => showServices((prev) => !prev)}
-              >
-                Services
-              </button>
-            </h2>
-            <div
-              id="services"
-              className={
-                shouldShowService
-                  ? "accordion-collapse collapse show"
-                  : "accordion-collapse collapse"
-              }
-            >
-              <div className="accordion-body">
-                {services?.data?.map((service) => (
-                  <div key={service.id}>
-                    <label
-                      className="form-check-label"
-                      style={{ cursor: "pointer" }}
-                    >
-                      <input
-                        className="form-check-input me-2"
-                        type="checkbox"
-                        onChange={(e) => {
-                          selectService((prev) =>
-                            e.target.checked
-                              ? [...prev, service.title ?? ""]
-                              : [...prev].filter((m) => m !== service.title)
-                          );
-                        }}
-                      />
-                      {service.title}
                     </label>
                   </div>
                 ))}

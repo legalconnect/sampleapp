@@ -17,6 +17,7 @@ import {
 import { UseQueryResult } from "react-query";
 import { useState } from "react";
 import { useClient } from "../hooks/useCities";
+import PackageCard from "../components/PackageCard";
 
 export default function LawyerDetails() {
   const { state } = useLocation();
@@ -38,12 +39,16 @@ export default function LawyerDetails() {
       {}
     );
 
-  const {data: serviceVariationPackages, isLoading: isLoadingPackages} = useServiceVariationPackages(
-    selectedServiceVariation?.id,
-    client?.data?.country
-  );
+  const { data: serviceVariationPackages, isLoading: isLoadingPackages } =
+    useServiceVariationPackages(
+      selectedServiceVariation?.id,
+      client?.data?.country
+    );
 
-  const {data: serviceVariation,isLoading: isLoadingVariations} : UseQueryResult<
+  const {
+    data: serviceVariation,
+    isLoading: isLoadingVariations,
+  }: UseQueryResult<
     | Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceOutputDto
     | undefined
   > = useServiceDetails(selectedService?.serviceId, (data) => {
@@ -55,9 +60,7 @@ export default function LawyerDetails() {
     }
   });
 
-  const variations = serviceVariation
-    ? serviceVariation.variations
-    : [];
+  const variations = serviceVariation ? serviceVariation.variations : [];
 
   const [shouldShowPackage, showPackages] = useState(false);
   const [shouldShowVariations, showVariations] = useState(false);
@@ -127,11 +130,9 @@ export default function LawyerDetails() {
   };
 
   const variationModal = () => {
-    
-    return (
-      variations && variations.length <= 1 ?
+    return variations && variations.length <= 1 ? (
       <></>
-      :
+    ) : (
       <>
         <Modal
           show={shouldShowVariations}
@@ -141,32 +142,31 @@ export default function LawyerDetails() {
         >
           <Modal.Body>
             <>
-            { isLoadingVariations 
-            ? <p>Loading Service Variations..</p>
-            :
-              variations && variations.length > 1 ? (
+              {isLoadingVariations ? (
+                <p>Loading Service Variations..</p>
+              ) : variations && variations.length > 1 ? (
                 <>
                   <h3>{selectedService.title}</h3>
                   <label className="form-label">Choose a</label>{" "}
                   <label className="form-label">{variations[0].label}</label>
                   <select
-                      className="form-select"
-                      aria-label="Pick Service Variation"
-                      onChange={(e) => {
-                        const variationId = Number.parseInt(
-                          e.currentTarget.value
-                        );
-                        const selVariation = variations.find(
-                          (m) => m.id === variationId
-                        );
-                        if (selVariation) {
-                          showVariations(false);
-                          selectServiceVariation(selVariation);
-                          showPackages(true);
-                        }
-                      }}
+                    className="form-select"
+                    aria-label="Pick Service Variation"
+                    onChange={(e) => {
+                      const variationId = Number.parseInt(
+                        e.currentTarget.value
+                      );
+                      const selVariation = variations.find(
+                        (m) => m.id === variationId
+                      );
+                      if (selVariation) {
+                        showVariations(false);
+                        selectServiceVariation(selVariation);
+                        showPackages(true);
+                      }
+                    }}
                   >
-                     <option key={-1}>Select one</option>
+                    <option key={-1}>Select one</option>
                     {variations?.map((variation) => {
                       return (
                         <option key={variation.id} value={variation.id}>
@@ -178,8 +178,7 @@ export default function LawyerDetails() {
                 </>
               ) : (
                 <p>No Service Variations found</p>
-              )
-            }
+              )}
             </>
           </Modal.Body>
         </Modal>
@@ -198,27 +197,28 @@ export default function LawyerDetails() {
         >
           <Modal.Body>
             <>
-            {isLoadingPackages ? 
-              <p>Loading Packages..</p>
-            :
-              <ul className="list-group">
-                {serviceVariationPackages?.packages?.map((pkg) => {
-                  return (
-                    <>
-                      <li
-                        key={pkg.id}
-                        style={{ cursor: "pointer" }}
-                        className="list-group-item list-group-item-action"
-                      >
-                        <p>{pkg.packageTitle}</p>
-                        <p>{pkg.packageDescription}</p>
-                        <p>{pkg.rate}</p>
-                      </li>
-                    </>
-                  );
-                })}
-              </ul>
-            }
+              {isLoadingPackages ? (
+                <p>Loading Packages..</p>
+              ) : (
+                <div className="row">
+                  {serviceVariationPackages?.packages?.map((pkg) => {
+                    return (
+                      <>
+                        <PackageCard
+                          key={pkg.id}
+                          title={pkg.packageTitle!}
+                          price={pkg.rate!}
+                          color="#ccbaa9"
+                          item1={"Session duration: "+ pkg.sessionDuration}
+                          item2={"Audio calls: " + (pkg.isAudioCallInclusive ? "Yes": "No")}
+                          item3={"Video calls: " + (pkg.isVideoCallInclusive ? "Yes" : "No")}
+                          item4={"Has audio recording: " + (pkg.isAudioCallRecorded ? "Yes": "No")}
+                        ></PackageCard>
+                      </>
+                    );
+                  })}
+                </div>
+              )}
             </>
           </Modal.Body>
         </Modal>
@@ -267,7 +267,9 @@ export default function LawyerDetails() {
                             Expertise:
                           </span>{" "}
                           {lawyer.services?.map((service) => (
-                            <span key={service.serviceId}>{service.title + " | "}</span>
+                            <span key={service.serviceId}>
+                              {service.title + " | "}
+                            </span>
                           ))}
                         </li>
                         <li className="mb-2 mb-xl-3 display-28">
