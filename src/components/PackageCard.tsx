@@ -59,7 +59,7 @@ const PackageCard = (props: Props) => {
         <div style={rootStyle}>
           <div style={titleStyles}>
             <p style={packageTitleStyles}>{title}</p>
-            <p style={packagePriceStyles}>$ {price}</p>
+            <p style={packagePriceStyles}>₦ {price}</p>
           </div>
           <div style={detailsStyles}>
             <p>{item1}</p>

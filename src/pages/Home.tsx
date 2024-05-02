@@ -1,5 +1,3 @@
-import PackageCard from "../components/PackageCard";
-
 export default function Home() {
   return (
     <>
@@ -10,15 +8,6 @@ export default function Home() {
         you need without having to worry about all the paperwork involved in
         finding a lawyer—just ask for help!
       </p>
-      <PackageCard
-        title="STANDARD"
-        price={59}
-        color="#ccbaa9"
-        item1="10 full user"
-        item2="2,000 Email Previews"
-        item3="10 contacts per client"
-        item4="10 coffee cups"
-      ></PackageCard>
     </>
   );
 }

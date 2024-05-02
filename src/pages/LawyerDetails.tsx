@@ -45,9 +45,12 @@ export default function LawyerDetails() {
       client?.data?.country
     );
 
+  let packages = serviceVariationPackages;
+
   const {
-    data: serviceVariation,
+    data: serviceDetails,
     isLoading: isLoadingVariations,
+    refetch
   }: UseQueryResult<
     | Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceOutputDto
     | undefined
@@ -60,7 +63,7 @@ export default function LawyerDetails() {
     }
   });
 
-  const variations = serviceVariation ? serviceVariation.variations : [];
+  // const variations = serviceDetails ? serviceDetails.variations : [];
 
   const [shouldShowPackage, showPackages] = useState(false);
   const [shouldShowVariations, showVariations] = useState(false);
@@ -93,7 +96,6 @@ export default function LawyerDetails() {
           show={shouldShowServices}
           onHide={() => {
             handleClose();
-            showPackages(false);
           }}
           centered
         >
@@ -106,12 +108,14 @@ export default function LawyerDetails() {
                       key={service.serviceId}
                       onClick={() => {
                         selectService(service);
-                        if (variations && variations.length === 1) {
-                          selectServiceVariation(variations[0]);
-                          showPackages(true);
-                        } else {
-                          showVariations(true);
+                        if (
+                          serviceDetails?.variations &&
+                          serviceDetails?.variations.length === 1
+                        ) {
+                          selectServiceVariation(serviceDetails.variations[0]);
                         }
+                        refetch();
+
                         handleClose();
                       }}
                       style={{ cursor: "pointer" }}
@@ -130,13 +134,16 @@ export default function LawyerDetails() {
   };
 
   const variationModal = () => {
-    return variations && variations.length <= 1 ? (
+    return serviceDetails?.variations &&
+      serviceDetails.variations.length <= 1 ? (
       <></>
     ) : (
       <>
         <Modal
           show={shouldShowVariations}
-          onHide={() => showVariations(false)}
+          onHide={() => {
+            showVariations(false)
+          }}
           centered
           size="lg"
         >
@@ -144,11 +151,14 @@ export default function LawyerDetails() {
             <>
               {isLoadingVariations ? (
                 <p>Loading Service Variations..</p>
-              ) : variations && variations.length > 1 ? (
+              ) : serviceDetails?.variations &&
+                serviceDetails?.variations.length > 1 ? (
                 <>
                   <h3>{selectedService.title}</h3>
                   <label className="form-label">Choose a</label>{" "}
-                  <label className="form-label">{variations[0].label}</label>
+                  <label className="form-label">
+                    {serviceDetails?.variations[0].label}
+                  </label>
                   <select
                     className="form-select"
                     aria-label="Pick Service Variation"
@@ -156,9 +166,11 @@ export default function LawyerDetails() {
                       const variationId = Number.parseInt(
                         e.currentTarget.value
                       );
-                      const selVariation = variations.find(
-                        (m) => m.id === variationId
-                      );
+                      const selVariation =
+                        serviceDetails?.variations &&
+                        serviceDetails.variations.find(
+                          (m) => m.id === variationId
+                        );
                       if (selVariation) {
                         showVariations(false);
                         selectServiceVariation(selVariation);
@@ -167,7 +179,7 @@ export default function LawyerDetails() {
                     }}
                   >
                     <option key={-1}>Select one</option>
-                    {variations?.map((variation) => {
+                    {serviceDetails?.variations?.map((variation) => {
                       return (
                         <option key={variation.id} value={variation.id}>
                           {variation.value}
@@ -191,17 +203,23 @@ export default function LawyerDetails() {
       <>
         <Modal
           show={shouldShowPackage}
-          onHide={() => showPackages(false)}
+          onHide={() =>{
+            showPackages(false)
+          } 
+        }
           centered
           size="lg"
         >
+          <Modal.Header className="text-">
+            <h4>{selectedService.title?.toLocaleUpperCase()}</h4>
+          </Modal.Header>
           <Modal.Body>
             <>
               {isLoadingPackages ? (
                 <p>Loading Packages..</p>
               ) : (
                 <div className="row">
-                  {serviceVariationPackages?.packages?.map((pkg) => {
+                  {packages?.packages?.map((pkg) => {
                     return (
                       <>
                         <PackageCard
@@ -209,10 +227,19 @@ export default function LawyerDetails() {
                           title={pkg.packageTitle!}
                           price={pkg.rate!}
                           color="#ccbaa9"
-                          item1={"Session duration: "+ pkg.sessionDuration}
-                          item2={"Audio calls: " + (pkg.isAudioCallInclusive ? "Yes": "No")}
-                          item3={"Video calls: " + (pkg.isVideoCallInclusive ? "Yes" : "No")}
-                          item4={"Has audio recording: " + (pkg.isAudioCallRecorded ? "Yes": "No")}
+                          item1={"Session duration: " + pkg.sessionDuration}
+                          item2={
+                            "Audio calls: " +
+                            (pkg.isAudioCallInclusive ? "Yes" : "No")
+                          }
+                          item3={
+                            "Video calls: " +
+                            (pkg.isVideoCallInclusive ? "Yes" : "No")
+                          }
+                          item4={
+                            "Has audio recording: " +
+                            (pkg.isAudioCallRecorded ? "Yes" : "No")
+                          }
                         ></PackageCard>
                       </>
                     );
