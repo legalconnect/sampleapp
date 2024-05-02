@@ -52,7 +52,7 @@ const Layout = () => {
               })}
             </ul>
             {/* Replace with Login Button &|| Client Profile Picture when authenticated */}
-            {user ? (
+            {user.user ? (
               <button
                 className="btn btn-outline-warning"
                 onClick={() => userManager.signoutPopup()}

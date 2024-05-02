@@ -381,7 +381,7 @@ export type Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceOutputD
     /**
      * Id of Service
      */
-    id?: number;
+    serviceId?: number;
     /**
      * Title of Service
      */
@@ -841,7 +841,7 @@ export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_ServiceVariatio
   /**
    * The actual result object of Http request. Has value if Success property is true.
    */
-  result?: Array<Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceVariationPackagesOutputDto> | null;
+  result?: Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceVariationPackagesOutputDto | null;
 };
 
 export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1 = {

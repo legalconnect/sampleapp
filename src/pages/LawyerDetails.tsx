@@ -1,34 +1,66 @@
 import { useLocation } from "react-router-dom";
 import {
   Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto,
+  Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceOutputDto,
+  Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceVariationPackagesOutputDto,
   Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_GetLegalPractitionerOutputDto as Lawyer,
 } from "../services/types.gen";
 import { useLegalPractitionerSchedule } from "../hooks/useLegalPractitioners";
 import { getTime } from "../utils/dateParse";
 
 import "./LawyerDetails.css";
-import { useState } from "react";
 import { Modal } from "react-bootstrap";
-import { usePackages } from "../hooks/usePackages";
-import { useUser } from "../UserContext";
+import {
+  useServiceDetails as useServiceDetails,
+  useServiceVariationPackages,
+} from "../hooks/usePackages";
+import { UseQueryResult } from "react-query";
+import { useState } from "react";
+import { useClient } from "../hooks/useCities";
 
 export default function LawyerDetails() {
-  const { client: client } = useUser();
   const { state } = useLocation();
   const lawyer = state?.item as Lawyer;
+  const client = useClient();
 
   const [shouldShowServices, showServices] = useState(false);
-  const [services, setServices] = useState(
-    lawyer.services?.map((m) => {
-      return { ...m, selected: false };
-    })
+  const services = lawyer.services?.map((m) => {
+    return { ...m };
+  });
+
+  const [selectedService, selectService] =
+    useState<Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceOutputDto>(
+      {}
+    );
+
+  const [selectedServiceVariation, selectServiceVariation] =
+    useState<Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceVariationPackagesOutputDto>(
+      {}
+    );
+
+  const {data: serviceVariationPackages, isLoading: isLoadingPackages} = useServiceVariationPackages(
+    selectedServiceVariation?.id,
+    client?.data?.country
   );
 
+  const {data: serviceVariation,isLoading: isLoadingVariations} : UseQueryResult<
+    | Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceOutputDto
+    | undefined
+  > = useServiceDetails(selectedService?.serviceId, (data) => {
+    if (data?.variations && data.variations.length === 1) {
+      selectServiceVariation(data.variations[0]);
+      showPackages(true);
+    } else {
+      showVariations(true);
+    }
+  });
+
+  const variations = serviceVariation
+    ? serviceVariation.variations
+    : [];
+
   const [shouldShowPackage, showPackages] = useState(false);
-  const serviceVariations = usePackages(
-    services?.find((m) => m.selected)?.id,
-    client?.country ?? ""
-  );
+  const [shouldShowVariations, showVariations] = useState(false);
 
   const handleClose = () => showServices(false);
   const handleShow = () => showServices(true);
@@ -68,15 +100,15 @@ export default function LawyerDetails() {
                 return (
                   <>
                     <li
-                      key={service.id}
+                      key={service.serviceId}
                       onClick={() => {
-                        setServices((prev) => {
-                          return prev?.map((m) => {
-                            m.selected = m.id == service.id;
-                            return m;
-                          });
-                        });
-                        showPackages(true);
+                        selectService(service);
+                        if (variations && variations.length === 1) {
+                          selectServiceVariation(variations[0]);
+                          showPackages(true);
+                        } else {
+                          showVariations(true);
+                        }
                         handleClose();
                       }}
                       style={{ cursor: "pointer" }}
@@ -94,17 +126,87 @@ export default function LawyerDetails() {
     );
   };
 
+  const variationModal = () => {
+    
+    return (
+      variations && variations.length <= 1 ?
+      <></>
+      :
+      <>
+        <Modal
+          show={shouldShowVariations}
+          onHide={() => showVariations(false)}
+          centered
+          size="lg"
+        >
+          <Modal.Body>
+            <>
+            { isLoadingVariations 
+            ? <p>Loading Service Variations..</p>
+            :
+              variations && variations.length > 1 ? (
+                <>
+                  <h3>{selectedService.title}</h3>
+                  <label className="form-label">Choose a</label>{" "}
+                  <label className="form-label">{variations[0].label}</label>
+                  <select
+                      className="form-select"
+                      aria-label="Pick Service Variation"
+                      onChange={(e) => {
+                        const variationId = Number.parseInt(
+                          e.currentTarget.value
+                        );
+                        const selVariation = variations.find(
+                          (m) => m.id === variationId
+                        );
+                        if (selVariation) {
+                          showVariations(false);
+                          selectServiceVariation(selVariation);
+                          showPackages(true);
+                        }
+                      }}
+                  >
+                     <option key={-1}>Select one</option>
+                    {variations?.map((variation) => {
+                      return (
+                        <option key={variation.id} value={variation.id}>
+                          {variation.value}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </>
+              ) : (
+                <p>No Service Variations found</p>
+              )
+            }
+            </>
+          </Modal.Body>
+        </Modal>
+      </>
+    );
+  };
+
   const packagesModal = () => {
     return (
       <>
-        <Modal show={shouldShowPackage} onHide={()=>showPackages(false)} centered size="lg">
+        <Modal
+          show={shouldShowPackage}
+          onHide={() => showPackages(false)}
+          centered
+          size="lg"
+        >
           <Modal.Body>
-            <ul className="list-group">
-              {serviceVariations?.data && serviceVariations?.data.length > 0 ? (
-                serviceVariations.data[0].packages?.map((pkg) => {
+            <>
+            {isLoadingPackages ? 
+              <p>Loading Packages..</p>
+            :
+              <ul className="list-group">
+                {serviceVariationPackages?.packages?.map((pkg) => {
                   return (
                     <>
                       <li
+                        key={pkg.id}
                         style={{ cursor: "pointer" }}
                         className="list-group-item list-group-item-action"
                       >
@@ -114,21 +216,16 @@ export default function LawyerDetails() {
                       </li>
                     </>
                   );
-                })
-              ) : (
-                <li
-                  style={{ cursor: "pointer" }}
-                  className="list-group-item list-group-item-action"
-                >
-                  No packages Found
-                </li>
-              )}
-            </ul>
+                })}
+              </ul>
+            }
+            </>
           </Modal.Body>
         </Modal>
       </>
     );
   };
+
   return (
     <>
       <section className="bg-light">
@@ -169,8 +266,8 @@ export default function LawyerDetails() {
                           <span className="display-26 text-secondary me-2 font-weight-600">
                             Expertise:
                           </span>{" "}
-                          {lawyer.services?.map((serv) => (
-                            <span key={serv.id}>{serv.title + " | "}</span>
+                          {lawyer.services?.map((service) => (
+                            <span key={service.serviceId}>{service.title + " | "}</span>
                           ))}
                         </li>
                         <li className="mb-2 mb-xl-3 display-28">
@@ -221,6 +318,7 @@ export default function LawyerDetails() {
       </section>
       {lawyerServicesModal()}
       {packagesModal()}
+      {variationModal()}
     </>
   );
 }
