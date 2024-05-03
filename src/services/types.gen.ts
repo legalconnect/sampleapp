@@ -817,7 +817,7 @@ export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_Subsc
    */
   success?: boolean;
   error?: LegalConnect_Shared_Core_Http_ErrorInfo;
-  result?: LegalConnect_Shared_Core_Paging_PagedList_SubscriptionOutputDto;
+  result?: Array<LegalConnect_Shared_Core_Paging_PagedList_SubscriptionOutputDto>;
 };
 
 export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_GetFilesOutputDto = {

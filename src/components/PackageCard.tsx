@@ -55,7 +55,7 @@ const PackageCard = (props: Props) => {
 
   return (
     <>
-      <div className="col-4 p-1 h-100">
+      <div className="col-md-4 col-sm-12 p-1 h-100">
         <div style={rootStyle}>
           <div style={titleStyles}>
             <p style={packageTitleStyles}>{title}</p>
