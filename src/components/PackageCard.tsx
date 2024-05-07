@@ -1,6 +1,7 @@
 import { CSSProperties } from "react";
 
 type Props = {
+  packageId?: number
   title: string;
   price: number;
   color?: string;
@@ -8,9 +9,10 @@ type Props = {
   item2?: string;
   item3?: string;
   item4?: string;
+  onButtonClick: (packageId?: number)=> void;
 };
 const PackageCard = (props: Props) => {
-  const { title, price, color, item1, item2, item3, item4 } = props;
+  const { title, price, color, item1, item2, item3, item4,packageId,onButtonClick } = props;
   const rootStyle: CSSProperties = {
     backgroundColor: color,
     display: "flex",
@@ -69,6 +71,7 @@ const PackageCard = (props: Props) => {
             <button
               className="btn btn-outline-warning"
               style={{ letterSpacing: "2px" }}
+              onClick={()=> onButtonClick(packageId)}
             >
               BUY NOW
             </button>

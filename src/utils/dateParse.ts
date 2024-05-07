@@ -18,22 +18,39 @@ export const shortDateString = (dateString: string): string => {
   });
 };
 
-export const getTime = (dateString: string): string => {
+export const getTimeString = (dateString: string): string => {
   var date = new Date(dateString);
   var localeTimeString = `${date.toLocaleTimeString(undefined, {
     hour12: true, // Display time in 12-hour format
   })}`;
 
   // Split time string at colon (:)
-const parts = localeTimeString.split(':');
+  const parts = localeTimeString.split(":");
 
-// Extract hours and minutes
-const hours = parts[0];
-const minutes = parts[1];
+  // Extract hours and minutes
+  const hours = parts[0];
+  const minutes = parts[1];
 
-// Get AM/PM indicator
-const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
+  // Get AM/PM indicator
+  const ampm = date.getHours() >= 12 ? "PM" : "AM";
 
-// Combine hours, minutes, and AM/PM
-return hours + ':' + minutes + ' ' + ampm;
+  // Combine hours, minutes, and AM/PM
+  return hours + ":" + minutes + " " + ampm;
+};
+
+export const getHoursMinutes = (dateString: string): string => {
+  var date = new Date(dateString);
+  var localeTimeString = `${date.toLocaleTimeString(undefined, {
+    hour12: false, // Display time in 12-hour format
+  })}`;
+
+  // Split time string at colon (:)
+  const parts = localeTimeString.split(":");
+
+  // Extract hours and minutes
+  const hours = parts[0];
+  const minutes = parts[1];
+
+  // Combine hours & minutes,
+  return hours + ":" + minutes;
 };

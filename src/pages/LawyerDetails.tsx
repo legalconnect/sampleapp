@@ -2,91 +2,197 @@ import { useLocation } from "react-router-dom";
 import {
   Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto as Availability,
   Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceOutputDto as Service,
-  Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceVariationPackagesOutputDto as ServiceVariation,
+  Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceVariationPackagesOutputDto as ServiceVariationPackages,
   Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_GetLegalPractitionerOutputDto as Lawyer,
+  Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_PractitionerScheduleDto as Schedule,
+  Developer_Dashboard_HttpAggregator_Contracts_Subscriptions_SubscriptionOutputDto as Subscription,
+  LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_GetFilesOutputDto,
+  Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto,
 } from "../services/types.gen";
-import { useLegalPractitionerSchedule } from "../hooks/useLegalPractitioners";
-import { getTime } from "../utils/dateParse";
+import {
+  useAppointmentBookingSlots,
+  useLegalPractitionerSchedule,
+} from "../hooks/useLegalPractitioners";
+import { getTimeString } from "../utils/dateParse";
 
 import "./LawyerDetails.css";
 import { Modal } from "react-bootstrap";
 import {
   useServiceDetails as useServiceDetails,
   useServiceVariationPackages,
-  useSubscriptionsAvailable,
 } from "../hooks/usePackages";
-import { UseQueryResult } from "react-query";
+import { createAppointment, createSubscription, useSubscriptionsAvailable } from "../hooks/useSubscriptions";
 import { useState } from "react";
 import { useClient } from "../hooks/useCities";
 import PackageCard from "../components/PackageCard";
+import Calendar from "react-calendar";
+import { Message, Tag, useToaster } from "rsuite";
+import { DocumentsService } from "../services";
+
+type LawyerDetailsState = {
+  exemptedDays?: number[]; // doesn't change
+  schedule?: Schedule; // doesn't change
+
+  selectedService?: Service;
+  selectedServiceVariation?: ServiceVariationPackages;
+
+  activeSubscription?: Subscription;
+  appointment?: {
+    selectedPackageId?: number;
+    scheduleDate?: Date | null | undefined;
+    bookingSlotTimes?: string[];
+    files?: File[];
+    discussionNotes?: string;
+  };
+  shouldShowServices?: Boolean;
+  shouldShowVariations?: Boolean;
+  shouldFetchPackages?: Boolean;
+  shouldShowPackage?: Boolean;
+  shouldShowAppointmentDates?: Boolean;
+  shouldShowAppointmentForm?: Boolean;
+};
 
 export default function LawyerDetails() {
+  const toaster = useToaster();
   const { state } = useLocation();
   const lawyer = state?.item as Lawyer;
-
   const { data: client } = useClient();
-
   const services = lawyer.services?.map((m) => {
     return { ...m };
   });
+  const [mainState, setState] = useState<LawyerDetailsState>();
 
-  var schedule = useLegalPractitionerSchedule(lawyer.userId ?? "").data;
-
-  // const [scheduleDay, setScheduleDay] = useState(new Date());
-  const [shouldShowServices, showServices] = useState(false);
-  const [shouldShowVariations, showVariations] = useState(false);
-  const [shouldShowSubscriptions, showSubscriptions] = useState(false);
-  const [shouldShowPackage, showPackages] = useState(false);
-
-  const [selectedService, selectService] = useState<Service>({});
-
-  const [selectedServiceVariation, selectServiceVariation] =
-    useState<ServiceVariation>({});
-
-  const {
-    data: serviceDetails,
-    isLoading: isLoadingVariations,
-    refetch: refetchServiceDetails,
-  }: UseQueryResult<Service | undefined> = useServiceDetails(
-    selectedService?.serviceId,
+  const { refetch: refetchSchedule } = useLegalPractitionerSchedule(
+    lawyer.userId ?? "",
     (data) => {
-      if (data?.variations && data.variations.length === 1) {
-        selectServiceVariation(data.variations[0]);
-        showPackages(true);
+      const dates = generateBookingSchedule(data);
+      setState((prev) => ({ ...prev, exemptedDays: dates, schedule: data }));
+    }
+  );
+
+  const { isLoading: isLoadingVariations } = useServiceDetails(
+    mainState?.selectedService?.serviceId,
+    (data) => {
+      const dataVariations = data?.variations;
+
+      if (!dataVariations || !dataVariations.length) {
+        return;
+      }
+
+      let localState = dataVariations
+        ? {
+            ...mainState,
+            selectedService: {
+              ...mainState?.selectedService,
+              variations: dataVariations,
+            },
+          }
+        : { ...mainState };
+
+      if (dataVariations.length > 1) {
+        localState = { ...localState, shouldShowVariations: true };
       } else {
-        showVariations(true);
+        localState = {
+          ...localState,
+          selectedServiceVariation: dataVariations[0],
+        };
+      }
+
+      setState(localState);
+    }
+  );
+
+  useSubscriptionsAvailable(
+    client?.userId,
+    lawyer.userId,
+    mainState?.selectedServiceVariation?.id,
+    (data) => {
+      if (data.totalCount) {
+        const activeSubscription = data?.data?.find(
+          (m) => (m.remainingNumberOfAppointments ?? 0) > 0
+        );
+        if (activeSubscription) {
+          setState((prev) => ({
+            ...prev,
+            activeSubscription: activeSubscription,
+            appointment: {
+              scheduleDate: undefined,
+              bookingSlotTimes: [],
+              selectedPackageId: activeSubscription.packageId,
+            },
+            shouldShowAppointmentDates: true,
+            shouldFetchPackages: false,
+          }));
+          return;
+        }
+      } else {
+        setState((prev) => ({ ...prev, shouldFetchPackages: true }));
       }
     }
   );
 
-  const [shouldFetchPackages, fetchPackages] = useState(false);
-  const { data: subscriptions, isLoading: isLoadingSubscriptions } =
-    useSubscriptionsAvailable(
-      client?.userId,
+  const { isLoading: isLoadingPackages } = useServiceVariationPackages(
+    mainState?.selectedServiceVariation?.id,
+    client?.country,
+    Boolean(mainState?.shouldFetchPackages),
+    (data) => {
+      setState((prev) => ({
+        ...prev,
+        selectedServiceVariation: {
+          ...prev?.selectedServiceVariation,
+          packages: data.packages,
+        },
+        shouldShowPackage: true,
+      }));
+    }
+  );
+
+  const { refetch: refetchAppointmentSlots, isLoading: isLoadingSlots } =
+    useAppointmentBookingSlots(
+      mainState?.appointment?.scheduleDate,
+      mainState?.appointment?.selectedPackageId,
+      mainState?.selectedServiceVariation?.id,
       lawyer.userId,
-      selectedServiceVariation.id,
       (data) => {
-        if (data.totalCount) {
-          if (
-            data.data &&
-            data.data.some((m) => (m.remainingNumberOfAppointments ?? 0) > 0)
-          ) {
-            showPackages(false);
-            showSubscriptions(true);
-            return;
-          }
-        }
-        fetchPackages(true);
-        showPackages(true);
+        setState((prev) => ({
+          ...prev,
+          appointment: { ...prev?.appointment, bookingSlotTimes: data },
+        }));
       }
     );
 
-  const { data: serviceVariationPackages, isLoading: isLoadingPackages } =
-    useServiceVariationPackages(
-      selectedServiceVariation?.id,
-      client?.country,
-      shouldFetchPackages
-    );
+  const handleFileButtonClick = () => {
+    // Create a temporary input element
+    const input = document.createElement("input");
+    input.type = "file";
+    input.multiple = true;
+
+    // Trigger a click event on the input element
+    input.click();
+
+    // Remove the input element from the DOM after the file has been selected
+    input.addEventListener("change", (event: Event) => {
+      const target = event.target as HTMLInputElement;
+      const files = target.files; // Array of selected files
+
+      const filesArray = files ? Array.from(files) : [];
+
+      setState((prev) => {
+        const existingFiles = prev?.appointment?.files
+          ? [...prev.appointment.files, ...filesArray]
+          : filesArray;
+
+        return {
+          ...prev,
+          appointment: {
+            ...prev?.appointment,
+            files: existingFiles,
+          },
+        };
+      });
+      input.remove();
+    });
+  };
 
   const AvailableSlot_Markup = (
     dates: Availability[] | undefined | null,
@@ -99,13 +205,15 @@ export default function LawyerDetails() {
       ) : (
         dates?.map((date) => {
           return (
-            
-             <button
-               className="btn btn-outline-warning me-2 disabled"
-               type="button"
-               onClick={() => showServices(true)}
-             >
-            {getTime(date.startTime!) + " "} to {getTime(date.endTime!)}
+            <button
+              className="btn btn-outline-warning me-2 disabled"
+              type="button"
+              onClick={() =>
+                setState((prev) => ({ ...prev, shouldShowPackage: true }))
+              }
+            >
+              {getTimeString(date.startTime!) + " "} to{" "}
+              {getTimeString(date.endTime!)}
             </button>
           );
         })
@@ -117,10 +225,10 @@ export default function LawyerDetails() {
     return (
       <>
         <Modal
-          show={shouldShowServices}
-          onHide={() => {
-            showServices(false);
-          }}
+          show={Boolean(mainState?.shouldShowServices)}
+          onHide={() =>
+            setState((prev) => ({ ...prev, shouldShowServices: false }))
+          }
           centered
         >
           <Modal.Body>
@@ -131,16 +239,11 @@ export default function LawyerDetails() {
                     <li
                       key={service.serviceId}
                       onClick={() => {
-                        selectService(service);
-                        if (
-                          serviceDetails?.variations &&
-                          serviceDetails?.variations.length === 1
-                        ) {
-                          selectServiceVariation(serviceDetails.variations[0]);
-                        }
-
-                        refetchServiceDetails();
-                        showServices(false);
+                        setState((prev) => ({
+                          ...prev,
+                          selectedService: service,
+                          shouldShowServices: false,
+                        }));
                       }}
                       style={{ cursor: "pointer" }}
                       className="list-group-item list-group-item-action"
@@ -158,16 +261,16 @@ export default function LawyerDetails() {
   };
 
   const ServiceVariation_Modal = () => {
-    return serviceDetails?.variations &&
-      serviceDetails.variations.length <= 1 ? (
-      <></>
-    ) : (
+    const variations = mainState?.selectedService?.variations;
+    if (!variations || !variations.length) return <></>;
+
+    return (
       <>
         <Modal
-          show={shouldShowVariations}
-          onHide={() => {
-            showVariations(false);
-          }}
+          show={Boolean(mainState?.shouldShowVariations)}
+          onHide={() =>
+            setState((prev) => ({ ...prev, shouldShowVariations: false }))
+          }
           centered
           size="lg"
         >
@@ -175,14 +278,11 @@ export default function LawyerDetails() {
             <>
               {isLoadingVariations ? (
                 <p>Loading Service Variations..</p>
-              ) : serviceDetails?.variations &&
-                serviceDetails?.variations.length > 1 ? (
+              ) : variations ? (
                 <>
-                  <h3>{selectedService.title}</h3>
+                  <h3>{mainState?.selectedService?.title}</h3>
                   <label className="form-label">Choose a</label>{" "}
-                  <label className="form-label">
-                    {serviceDetails?.variations[0].label}
-                  </label>
+                  <label className="form-label">{variations[0].label}</label>
                   <select
                     className="form-select"
                     aria-label="Pick Service Variation"
@@ -190,20 +290,21 @@ export default function LawyerDetails() {
                       const variationId = Number.parseInt(
                         e.currentTarget.value
                       );
-                      const selVariation =
-                        serviceDetails?.variations &&
-                        serviceDetails.variations.find(
-                          (m) => m.id === variationId
-                        );
-                      if (selVariation) {
-                        showVariations(false);
-                        selectServiceVariation(selVariation);
-                        showPackages(true);
+                      const selectedVariation = variations.find(
+                        (m) => m.id === variationId
+                      );
+                      if (selectedVariation) {
+                        setState((prev) => ({
+                          ...prev,
+                          selectedServiceVariation: selectedVariation,
+                          shouldShowVariations: false,
+                          shouldShowPackage: true,
+                        }));
                       }
                     }}
                   >
                     <option key={-1}>Select one</option>
-                    {serviceDetails?.variations?.map((variation) => {
+                    {variations?.map((variation) => {
                       return (
                         <option key={variation.id} value={variation.id}>
                           {variation.value}
@@ -222,69 +323,21 @@ export default function LawyerDetails() {
     );
   };
 
-  const Subscriptions_Modal = () => {
-    if (subscriptions) {
-      return (
-        <>
-          <Modal
-            show={shouldShowSubscriptions}
-            onHide={() => {
-              showSubscriptions(false);
-            }}
-            centered
-            size="lg"
-          >
-            <Modal.Header>
-              <h3>Your Subscriptions:</h3>
-            </Modal.Header>
-            <Modal.Body>
-              <>
-                {isLoadingSubscriptions ? (
-                  <p>Loading Subscriptions..</p>
-                ) : (
-                  <ul className="list-group">
-                    {subscriptions.data?.map((subscription) => {
-                      return (
-                        <>
-                          <li
-                            key={subscription.subscriptionId}
-                            onClick={() => {}}
-                            style={{ cursor: "pointer" }}
-                            className="list-group-item list-group-item-action"
-                          >
-                            {subscription.packageTitle} {" | Appointments: "}{" "}
-                            {subscription.remainingNumberOfAppointments}/
-                            {subscription.numberOfAppointments}
-                          </li>
-                        </>
-                      );
-                    })}
-                  </ul>
-                )}
-              </>
-            </Modal.Body>
-          </Modal>
-        </>
-      );
-    } else {
-      return;
-      <p>No Service Variations found</p>;
-    }
-  };
-
   const Packages_Modal = () => {
     return (
       <>
         <Modal
-          show={shouldShowPackage}
-          onHide={() => {
-            showPackages(false);
-          }}
+          show={Boolean(mainState?.shouldShowPackage)}
+          onHide={() =>
+            setState((prev) => ({ ...prev, shouldShowPackage: false }))
+          }
           centered
           size="xl"
         >
           <Modal.Header className="text-">
-            <h4>{selectedService.title?.toLocaleUpperCase()} PACKAGES</h4>
+            <h4>
+              {mainState?.selectedService?.title?.toLocaleUpperCase()} PACKAGES
+            </h4>
           </Modal.Header>
           <Modal.Body>
             <>
@@ -292,7 +345,7 @@ export default function LawyerDetails() {
                 <p>Loading Packages..</p>
               ) : (
                 <div className="row">
-                  {serviceVariationPackages?.packages?.map((pkg) => {
+                  {mainState?.selectedServiceVariation?.packages?.map((pkg) => {
                     let color = "";
                     switch (pkg.packageTitle?.toLocaleLowerCase()) {
                       case "bronze":
@@ -316,7 +369,7 @@ export default function LawyerDetails() {
                         <PackageCard
                           key={pkg.id}
                           title={pkg.packageTitle!}
-                          price={pkg.rate!}
+                          price={pkg.rate! + pkg.taxAmount!}
                           color={color}
                           item1={"Session duration: " + pkg.sessionDuration}
                           item2={
@@ -331,6 +384,18 @@ export default function LawyerDetails() {
                             "Has audio recording: " +
                             (pkg.isAudioCallRecorded ? "Yes" : "No")
                           }
+                          packageId={pkg.packageId}
+                          onButtonClick={(packageId) => {
+                            setState((prev) => ({
+                              ...prev,
+                              appointment: {
+                                ...prev?.appointment,
+                                selectedPackageId: packageId,
+                              },
+                              shouldShowPackage: false,
+                              shouldShowAppointmentDates: true,
+                            }));
+                          }}
                         ></PackageCard>
                       </>
                     );
@@ -341,6 +406,229 @@ export default function LawyerDetails() {
           </Modal.Body>
         </Modal>
       </>
+    );
+  };
+
+  const AppointmentDates_Modal = () => {
+    let currentDate = new Date();
+    // Add 30 days to the current date
+    currentDate.setDate(currentDate.getDate() + 30);
+
+    return (
+      <div className="align-items-center">
+        <Modal
+          show={Boolean(mainState?.shouldShowAppointmentDates)}
+          onHide={() => {
+            setState((prev) => ({
+              ...prev,
+              shouldShowAppointmentDates: false,
+              shouldShowPackage: false,
+            }));
+            refetchSchedule();
+            refetchAppointmentSlots();
+          }}
+          centered
+          size="lg"
+        >
+          <Modal.Header className="text-">
+            <>
+              <h4>Select Appointment Date</h4>
+            </>
+          </Modal.Header>
+          <Modal.Body>
+            <>
+              <Calendar
+                onChange={(date) => {
+                  const scheduleDate = new Date(date?.toString() ?? "");
+                  setState((prev) => ({
+                    ...prev,
+                    appointment: { ...prev?.appointment, scheduleDate },
+                  }));
+                }}
+                value={mainState?.appointment?.scheduleDate}
+                className="w-100 h-100"
+                minDate={new Date()}
+                maxDate={currentDate}
+                tileDisabled={({ date }) => {
+                  return (
+                    mainState?.exemptedDays?.includes(date.getDay()) ?? true
+                  );
+                }}
+              ></Calendar>
+              <p className="mt-4">Booking Time Slots: </p>
+              {isLoadingSlots ? (
+                <p>Loading time slots...</p>
+              ) : mainState?.appointment?.bookingSlotTimes &&
+                mainState?.appointment?.bookingSlotTimes.length > 0 ? (
+                <div className="row m-4 align-items-center">
+                  {mainState?.appointment?.bookingSlotTimes?.map(
+                    (appointmentTime) => {
+                      return (
+                        <>
+                          <button
+                            key={appointmentTime}
+                            onClick={() => {
+                              setState((prev) => {
+                                return {
+                                  ...prev,
+                                  appointment: {
+                                    ...prev?.appointment,
+                                    scheduleDate: new Date(appointmentTime),
+                                  },
+                                };
+                              });
+                              setState((prev) => ({
+                                ...prev,
+                                shouldShowAppointmentDates: false,
+                                shouldShowAppointmentForm: true,
+                              }));
+                            }}
+                            style={{ cursor: "pointer" }}
+                            className="btn btn-outline-warning col-2"
+                          >
+                            {getTimeString(appointmentTime)}
+                          </button>
+                        </>
+                      );
+                    }
+                  )}
+                </div>
+              ) : (
+                ""
+              )}
+            </>
+          </Modal.Body>
+        </Modal>
+      </div>
+    );
+  };
+
+  const AppointmentForm_Modal = () => {
+    return (
+      <div className="align-items-center">
+        <Modal
+          show={Boolean(mainState?.shouldShowAppointmentForm)}
+          onHide={() =>
+            setState((prev) => ({ ...prev, shouldShowAppointmentForm: false }))
+          }
+          centered
+          size="lg"
+        >
+          <Modal.Header className="text-">Confirm Booking</Modal.Header>
+          <Modal.Body>
+            <>
+              <div className="row">
+                <div className="col-2">
+                  <img
+                    src={lawyer?.avatar ?? ""}
+                    style={{
+                      width: "100%",
+                      aspectRatio: 1,
+                      objectFit: "cover",
+                    }}
+                  ></img>
+                </div>
+                <div className="col-10">
+                  <h2>
+                    {lawyer.firstName} {lawyer.lastName}
+                  </h2>
+                  <div className="text-body-secondary">
+                    {lawyer.city} {lawyer.country}
+                  </div>
+                  <label>
+                    {mainState?.appointment?.scheduleDate?.toLocaleDateString(
+                      undefined,
+                      {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }
+                    )}
+                    {"  "}
+                    {mainState?.appointment?.scheduleDate
+                      ?.toLocaleTimeString(undefined, {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })
+                      .toUpperCase()}
+                  </label>
+                  <div>{mainState?.selectedService?.title}</div>
+                  <br />
+                </div>
+              </div>
+              <div>
+                <div>
+                  <b>Additional Documents</b>
+                </div>
+                <div>
+                  {mainState?.appointment?.files?.map((file) => (
+                    <>
+                      <Tag
+                      style={{cursor: "pointer"}}
+                        closable
+                        onClose={() =>
+                          setState((prev) => ({
+                            ...prev,
+                            appointment: {
+                              ...prev?.appointment,
+                              files: prev?.appointment?.files?.filter(
+                                (m) => m.name !== file.name
+                              ),
+                            },
+                          }))
+                        }
+                      >
+                        <label style={{cursor: "pointer"}} title={file.name}>{file.name.substring(0, 10)}...</label>
+                      </Tag>
+                    </>
+                  ))}
+                </div>
+                <button
+                  className="btn btn-outline-warning"
+                  onClick={handleFileButtonClick}
+                >
+                  Upload Document
+                </button>
+                <br />
+                <br />
+                <div>
+                  <b>What do you want to discuss?</b>
+                </div>
+                <textarea
+                  value={mainState?.appointment?.discussionNotes}
+                  className="w-100"
+                  onChange={(e) =>
+                    setState((prev) => ({
+                      ...prev,
+                      appointment: {
+                        ...prev?.appointment,
+                        discussionNotes: e.target.value,
+                      },
+                    }))
+                  }
+                ></textarea>
+              </div>
+            </>
+          </Modal.Body>
+          <Modal.Footer>
+            <button
+              className="btn btn-warning"
+              style={{ color: "white" }}
+              onClick={async() => {
+                setState((prev) => ({
+                  ...prev,
+                  shouldShowAppointmentForm: false,
+                }));
+                await bookAppointment();
+              }}
+            >
+              Proceed
+            </button>
+          </Modal.Footer>
+        </Modal>
+      </div>
     );
   };
 
@@ -399,79 +687,73 @@ export default function LawyerDetails() {
                           ))}
                         </li>
 
-                        {schedule?.result && (
+                        {mainState?.schedule && (
                           <li className="mb-2 mb-xl-3 display-28">
                             <span className="display-26 text-secondary me-2 font-weight-600">
                               Schedule:{" "}
                               <button
                                 className="btn btn-warning me-2"
-                                style={{color: "white"}}
+                                style={{ color: "white" }}
                                 type="button"
-                                onClick={() => showServices(true)}
+                                onClick={() => {
+                                  setState((prev) => ({
+                                    schedule: { ...prev?.schedule },
+                                    exemptedDays: prev?.exemptedDays
+                                      ? [...prev.exemptedDays]
+                                      : [],
+                                    selectedService: {},
+                                    selectedServiceVariation: {},
+                                    activeSubscription: undefined,
+                                    appointment: {},
+                                    shouldShowServices: true,
+                                  }));
+                                }}
                               >
                                 Book Appointment
                               </button>
                             </span>{" "}
                             {AvailableSlot_Markup(
-                              schedule.result
-                                ? schedule.result.monday
+                              mainState?.schedule
+                                ? mainState.schedule.monday
                                 : undefined,
                               "Monday"
                             )}
                             {AvailableSlot_Markup(
-                              schedule.result
-                                ? schedule.result.tuesday
+                              mainState?.schedule
+                                ? mainState.schedule.tuesday
                                 : undefined,
                               "Tuesday"
                             )}
                             {AvailableSlot_Markup(
-                              schedule.result
-                                ? schedule.result.wednesday
+                              mainState?.schedule
+                                ? mainState.schedule.wednesday
                                 : undefined,
                               "Wednesday"
                             )}
                             {AvailableSlot_Markup(
-                              schedule.result
-                                ? schedule.result.thursday
+                              mainState?.schedule
+                                ? mainState.schedule.thursday
                                 : undefined,
                               "Thursday"
                             )}
                             {AvailableSlot_Markup(
-                              schedule.result
-                                ? schedule.result.friday
+                              mainState?.schedule
+                                ? mainState.schedule.friday
                                 : undefined,
                               "Friday"
                             )}
                             {AvailableSlot_Markup(
-                              schedule.result
-                                ? schedule.result.saturday
+                              mainState?.schedule
+                                ? mainState.schedule.saturday
                                 : undefined,
                               "Saturday"
                             )}
                             {AvailableSlot_Markup(
-                              schedule.result
-                                ? schedule.result.sunday
+                              mainState?.schedule
+                                ? mainState.schedule.sunday
                                 : undefined,
                               "Sunday"
                             )}
-                            {/* {schedule?.result?.tuesday?.map((date) =>
-                              AvailableSlot_Markup(date, "Tuesday")
-                            )}
-                            {schedule?.result?.wednesday?.map((date) =>
-                              AvailableSlot_Markup(date, "Wednesday")
-                            )}
-                            {schedule?.result?.thursday?.map((date) =>
-                              AvailableSlot_Markup(date, "Thursday")
-                            )}
-                            {schedule?.result?.friday?.map((date) =>
-                              AvailableSlot_Markup(date, "Friday")
-                            )}
-                            {schedule?.result?.saturday?.map((date) =>
-                              AvailableSlot_Markup(date, "Saturday")
-                            )}
-                            {schedule?.result?.sunday?.map((date) =>
-                              AvailableSlot_Markup(date, "Sunday")
-                            )} */}
                           </li>
                         )}
                       </ul>
@@ -485,8 +767,82 @@ export default function LawyerDetails() {
       </section>
       {Services_Modal()}
       {ServiceVariation_Modal()}
-      {Subscriptions_Modal()}
       {Packages_Modal()}
+      {AppointmentDates_Modal()}
+      {AppointmentForm_Modal()}
     </>
   );
+
+  function generateBookingDates(
+    daysExempted: number[],
+    dayAvailability: Availability[],
+    disabledDayIndicator: number
+  ): number[] {
+    if (!dayAvailability || dayAvailability.length === 0) {
+      daysExempted.push(disabledDayIndicator);
+    }
+    return daysExempted;
+  }
+
+  function generateBookingSchedule(schedule: Schedule | undefined): number[] {
+    const monday = schedule?.monday ?? [];
+    const tuesday = schedule?.tuesday ?? [];
+    const wednesday = schedule?.wednesday ?? [];
+    const thursday = schedule?.thursday ?? [];
+    const friday = schedule?.friday ?? [];
+    const saturday = schedule?.saturday ?? [];
+    const sunday = schedule?.sunday ?? [];
+
+    let daysExempted: number[] = [];
+
+    daysExempted = generateBookingDates(daysExempted, monday, 1);
+    daysExempted = generateBookingDates(daysExempted, tuesday, 2);
+    daysExempted = generateBookingDates(daysExempted, wednesday, 3);
+    daysExempted = generateBookingDates(daysExempted, thursday, 4);
+    daysExempted = generateBookingDates(daysExempted, friday, 5);
+    daysExempted = generateBookingDates(daysExempted, saturday, 6);
+    daysExempted = generateBookingDates(daysExempted, sunday, 0);
+    return daysExempted;
+  }
+
+  async function bookAppointment() {
+    let files: Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto[] = [];
+    if(mainState?.appointment?.files){
+      const response = await DocumentsService.postApiV1DocumentsAppointmentsBySubscriptionIdByLegalPractitionerUserId({
+        formData: {
+          files: mainState.appointment.files
+        },
+        legalPractitionerUserId: lawyer?.userId!,
+        subscriptionId: mainState?.activeSubscription?.id!
+      })
+
+      files = (response.success && response.result) ? response.result : []
+    }
+    if (mainState?.activeSubscription) {
+      // Create Appointment
+      const appointmentDto = await createAppointment({
+        subscriptionId: mainState?.activeSubscription?.id ?? 0,
+        discussionNotes: mainState?.appointment?.discussionNotes,
+        scheduleDate: mainState?.appointment?.scheduleDate?.toISOString() ?? "",
+        files
+      });
+      toaster.push(<Message>Appointment Created Successfully</Message>);
+    } else {
+      const subscriptionDto = await createSubscription({
+        formData: {
+          scheduleDate: mainState?.appointment?.scheduleDate?.toDateString(),
+          discussionNotes: mainState?.appointment?.discussionNotes,
+          clientUserId: client!.userId ?? "",
+          practitionerUserId: lawyer!.userId  ?? "",
+          serviceId: mainState?.selectedService?.serviceId ?? 0,
+          variationId: mainState?.selectedServiceVariation?.id ?? 0,
+          packageId: mainState?.appointment?.selectedPackageId ?? 0,
+          callbackUrl: "http://localhost:3000/appointments",
+          files: mainState?.appointment?.files
+        }
+      })
+      if(subscriptionDto.result?.paymentUrl)
+        window.location.href=subscriptionDto.result.paymentUrl;
+    }
+  }
 }

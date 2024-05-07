@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
+import 'react-calendar/dist/Calendar.css';
+import 'rsuite/Tag/styles/index.css';
+import 'rsuite/TagGroup/styles/index.css';
 import Layout from "./pages/Layout";
 import Home from "./pages/Home";
 import AppointmentPage from "./pages/Appointment";

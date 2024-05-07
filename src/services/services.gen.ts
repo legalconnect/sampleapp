@@ -344,6 +344,7 @@ export class LegalPractitionersService {
             },
             query: {
                 packageId: data.packageId,
+                variationId: data.variationId,
                 date: data.date
             },
             errors: {

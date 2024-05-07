@@ -284,35 +284,51 @@ export type Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_Prac
     /**
      * Sunday schedule
      */
-    sunday?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[] | null;
+    sunday?:
+      | Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[]
+      | null;
     /**
      * Monday's schedule
      */
-    monday?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[] | null;
+    monday?:
+      | Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[]
+      | null;
     /**
      * Tuesday's schedule
      */
-    tuesday?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[] | null;
+    tuesday?:
+      | Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[]
+      | null;
     /**
      * Wednesday's schedule
      */
-    wednesday?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[] | null;
+    wednesday?:
+      | Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[]
+      | null;
     /**
      * Thursday's schedule
      */
-    thursday?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[] | null;
+    thursday?:
+      | Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[]
+      | null;
     /**
      * Friday's schedule
      */
-    friday?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[] | null;
+    friday?:
+      | Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[]
+      | null;
     /**
      * Saturday's schedule
      */
-    saturday?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[] | null;
+    saturday?:
+      | Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto[]
+      | null;
     /**
      * Specific Dates out of schedule
      */
-    exceptionDates?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_ExceptionDateDto[] | null;
+    exceptionDates?:
+      | Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_ExceptionDateDto[]
+      | null;
   };
 
 export type Developer_Dashboard_HttpAggregator_Contracts_Reviews_GetReviewInputDto =
@@ -453,7 +469,8 @@ export type Developer_Dashboard_HttpAggregator_Contracts_Subscriptions_Subscript
     /**
      * Subscription Id
      */
-    subscriptionId?: number;
+    id?: number;
+
     status?: LegalConnect_Common_Enums_SubscriptionStatus;
     /**
      * Date subscription was closed
@@ -487,6 +504,10 @@ export type Developer_Dashboard_HttpAggregator_Contracts_Subscriptions_Subscript
      * Name of Service user booked.
      */
     service?: string | null;
+    /**
+     * Service Variation Package Id
+     */
+    packageId?: number;
     /**
      * Tax percentage in decimals
      */
@@ -702,59 +723,65 @@ export type LegalConnect_Shared_Core_Http_HttpAPIErrorResponseWrapper = {
   error?: LegalConnect_Shared_Core_Http_ErrorInfo;
 };
 
-export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_GetAppointmentOutputDto = {
-  /**
-   * Indicates success status of the result.
-   */
-  success?: boolean;
-  error?: LegalConnect_Shared_Core_Http_ErrorInfo;
-  result?: Developer_Dashboard_HttpAggregator_Contracts_Appointments_GetAppointmentOutputDto;
-};
+export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_GetAppointmentOutputDto =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    result?: Developer_Dashboard_HttpAggregator_Contracts_Appointments_GetAppointmentOutputDto;
+  };
 
-export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_EmbeddedSignatureRequestClaim = {
-  /**
-   * Indicates success status of the result.
-   */
-  success?: boolean;
-  error?: LegalConnect_Shared_Core_Http_ErrorInfo;
-  result?: Developer_Dashboard_HttpAggregator_Contracts_Documents_EmbeddedSignatureRequestClaim;
-};
+export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_EmbeddedSignatureRequestClaim =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    result?: Developer_Dashboard_HttpAggregator_Contracts_Documents_EmbeddedSignatureRequestClaim;
+  };
 
-export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_GetLegalPractitionerOutputDto = {
-  /**
-   * Indicates success status of the result.
-   */
-  success?: boolean;
-  error?: LegalConnect_Shared_Core_Http_ErrorInfo;
-  result?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_GetLegalPractitionerOutputDto;
-};
+export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_GetLegalPractitionerOutputDto =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    result?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_GetLegalPractitionerOutputDto;
+  };
 
-export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PractitionerScheduleDto = {
-  /**
-   * Indicates success status of the result.
-   */
-  success?: boolean;
-  error?: LegalConnect_Shared_Core_Http_ErrorInfo;
-  result?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_PractitionerScheduleDto;
-};
+export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PractitionerScheduleDto =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    result?: Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_PractitionerScheduleDto;
+  };
 
-export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_ServiceOutputDto = {
-  /**
-   * Indicates success status of the result.
-   */
-  success?: boolean;
-  error?: LegalConnect_Shared_Core_Http_ErrorInfo;
-  result?: Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceOutputDto;
-};
+export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_ServiceOutputDto =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    result?: Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceOutputDto;
+  };
 
-export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_SubscriptionOutputDto = {
-  /**
-   * Indicates success status of the result.
-   */
-  success?: boolean;
-  error?: LegalConnect_Shared_Core_Http_ErrorInfo;
-  result?: Developer_Dashboard_HttpAggregator_Contracts_Subscriptions_SubscriptionOutputDto;
-};
+export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_SubscriptionOutputDto =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    result?: Developer_Dashboard_HttpAggregator_Contracts_Subscriptions_SubscriptionOutputDto;
+  };
 
 export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_ClientDto = {
   /**
@@ -775,74 +802,81 @@ export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_GetLe
     result?: LegalConnect_Shared_Core_Paging_PagedList_GetLegalPractitionerOutputDto;
   };
 
-export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_GetAppointmentOutputDto = {
-  /**
-   * Indicates success status of the result.
-   */
-  success?: boolean;
-  error?: LegalConnect_Shared_Core_Http_ErrorInfo;
-  result?: LegalConnect_Shared_Core_Paging_PagedList_GetAppointmentOutputDto;
-};
+export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_GetAppointmentOutputDto =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    result?: LegalConnect_Shared_Core_Paging_PagedList_GetAppointmentOutputDto;
+  };
 
-export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_GetFileOutputDto = {
-  /**
-   * Indicates success status of the result.
-   */
-  success?: boolean;
-  error?: LegalConnect_Shared_Core_Http_ErrorInfo;
-  result?: LegalConnect_Shared_Core_Paging_PagedList_GetFileOutputDto;
-};
+export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_GetFileOutputDto =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    result?: LegalConnect_Shared_Core_Paging_PagedList_GetFileOutputDto;
+  };
 
-export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_ServiceCategories = {
-  /**
-   * Indicates success status of the result.
-   */
-  success?: boolean;
-  error?: LegalConnect_Shared_Core_Http_ErrorInfo;
-  result?: LegalConnect_Shared_Core_Paging_PagedList_ServiceCategoryOutputDto;
-};
+export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_ServiceCategories =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    result?: LegalConnect_Shared_Core_Paging_PagedList_ServiceCategoryOutputDto;
+  };
 
-export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_ServiceOutputDto = {
-  /**
-   * Indicates success status of the result.
-   */
-  success?: boolean;
-  error?: LegalConnect_Shared_Core_Http_ErrorInfo;
-  result?: LegalConnect_Shared_Core_Paging_PagedList_ServiceOutputDto;
-};
+export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_ServiceOutputDto =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    result?: LegalConnect_Shared_Core_Paging_PagedList_ServiceOutputDto;
+  };
 
-export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_SubscriptionOutputDto = {
-  /**
-   * Indicates success status of the result.
-   */
-  success?: boolean;
-  error?: LegalConnect_Shared_Core_Http_ErrorInfo;
-  result?: Array<LegalConnect_Shared_Core_Paging_PagedList_SubscriptionOutputDto>;
-};
+export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_SubscriptionOutputDto =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    result?: Array<LegalConnect_Shared_Core_Paging_PagedList_SubscriptionOutputDto>;
+  };
 
-export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_GetFilesOutputDto = {
-  /**
-   * Indicates success status of the result.
-   */
-  success?: boolean;
-  error?: LegalConnect_Shared_Core_Http_ErrorInfo;
-  /**
-   * The actual result object of Http request. Has value if Success property is true.
-   */
-  result?: Array<Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto> | null;
-};
+export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_GetFilesOutputDto =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    /**
+     * The actual result object of Http request. Has value if Success property is true.
+     */
+    result?: Array<Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto> | null;
+  };
 
-export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_ServiceVariationPackagesOutputDto = {
-  /**
-   * Indicates success status of the result.
-   */
-  success?: boolean;
-  error?: LegalConnect_Shared_Core_Http_ErrorInfo;
-  /**
-   * The actual result object of Http request. Has value if Success property is true.
-   */
-  result?: Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceVariationPackagesOutputDto | null;
-};
+export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_ServiceVariationPackagesOutputDto =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    /**
+     * The actual result object of Http request. Has value if Success property is true.
+     */
+    result?: Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceVariationPackagesOutputDto | null;
+  };
 
 export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1 = {
   /**
@@ -868,11 +902,12 @@ export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_String = {
   result?: Array<string> | null;
 };
 
-export type LegalConnect_Shared_Core_Paging_PagedList_GetAppointmentOutputDto = {
-  readonly data?: Array<Developer_Dashboard_HttpAggregator_Contracts_Appointments_GetAppointmentOutputDto> | null;
-  totalCount?: number;
-  pageSize?: number;
-};
+export type LegalConnect_Shared_Core_Paging_PagedList_GetAppointmentOutputDto =
+  {
+    readonly data?: Array<Developer_Dashboard_HttpAggregator_Contracts_Appointments_GetAppointmentOutputDto> | null;
+    totalCount?: number;
+    pageSize?: number;
+  };
 
 export type LegalConnect_Shared_Core_Paging_PagedList_GetFileOutputDto = {
   readonly data?: Array<Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto> | null;
@@ -887,11 +922,12 @@ export type LegalConnect_Shared_Core_Paging_PagedList_GetLegalPractitionerOutput
     pageSize?: number;
   };
 
-export type LegalConnect_Shared_Core_Paging_PagedList_ServiceCategoryOutputDto = {
-  readonly data?: Array<Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceCategoryOutputDto> | null;
-  totalCount?: number;
-  pageSize?: number;
-};
+export type LegalConnect_Shared_Core_Paging_PagedList_ServiceCategoryOutputDto =
+  {
+    readonly data?: Array<Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceCategoryOutputDto> | null;
+    totalCount?: number;
+    pageSize?: number;
+  };
 
 export type LegalConnect_Shared_Core_Paging_PagedList_ServiceOutputDto = {
   readonly data?: Array<Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceOutputDto> | null;
@@ -1119,7 +1155,7 @@ export type $OpenApiTs = {
         /**
          * Success
          */
-        200: LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_SubscriptionOutputDto;
+        200: LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_GetFilesOutputDto;
         /**
          * Bad Request
          */
@@ -1336,9 +1372,13 @@ export type $OpenApiTs = {
          */
         date?: string;
         /**
-         * Service Package Id
+         * Package Id
          */
         packageId: number;
+        /**
+         * Service Variation Id
+         */
+        variationId: number;
         /**
          * User Id of Legal Practitioner
          */
