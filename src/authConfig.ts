@@ -7,7 +7,7 @@ const authConfig: UserManagerSettings = {
     // authority: 'https://staging.legalconnectonline.com/legalconnect-identityserver', //Replace with your issuer URL
     // client_id: 'PK-a8b1f63c-387a-4a19-9cb9-54c90f95845c', //Replace with your client id
     
-    // local
+    // // local
     authority: 'https://localhost:5001', 
     client_id: 'PK-f2452390-49d6-4c20-a438-26ac3a08ad9e', //Replace with your client id
     

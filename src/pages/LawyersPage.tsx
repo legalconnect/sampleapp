@@ -7,7 +7,7 @@ import { useServices } from "../hooks/useServices";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_GetLegalPractitionerOutputDto as LegalPractitioner } from "../services";
 
-const Lawyers = () => {
+const LawyersPage = () => {
   const [selectedServices, selectService] = useState<string[]>([""]);
   const [selectedCity, selectCity] = useState("");
   const [selectedLang, selectLang] = useState([""]);
@@ -58,7 +58,7 @@ const Lawyers = () => {
       <div style={sidebarStyles}>
         <h2>Filters</h2>
         <div className="accordion">
-        <div className="accordion-item">
+          <div className="accordion-item">
             <h2 className="accordion-header">
               <button
                 className="accordion-button collapsed"
@@ -200,49 +200,49 @@ const Lawyers = () => {
           </div>
         </div>
       </div>
-        <InfiniteScroll
-          dataLength={lawyerResponse ? lawyerResponse.pages.length : 0}
-          next={() => fetchNextPage()}
-          loader={<div>Loading</div>}
-          hasMore={hasNextPage ?? false}
-        >
-          <div className="row" style={mainContentStyle}>
-            <h2>List of Lawyers</h2>
-            {isLoading ? (
-              <p>Loading</p>
-            ) : lawyers && lawyers.length ? (
-              lawyers.map((item) => {
-                return (
-                  <div
-                    key={item.userId}
-                    onClick={() => {
-                      navigate("/laywer-details", { state: { item } });
-                    }}
-                    className="card col-md-3 col-sm-4 col-xs-6 m-2"
-                    style={{ cursor: "pointer" }}
-                  >
-                    <img
-                      src={item.avatar ?? ""}
-                      className="card-img-top p-2"
-                      style={{ aspectRatio: 1, objectFit: "cover" }}
-                      alt="..."
-                    />
-                    <div className="card-body">
-                      <p className="card-text">
-                        {item.firstName} {item.lastName}
-                      </p>
-                      <p>Rating: {item.averageRating}/5</p>
-                    </div>
+      <InfiniteScroll
+        dataLength={lawyerResponse ? lawyerResponse.pages.length : 0}
+        next={() => fetchNextPage()}
+        loader={<div>Loading</div>}
+        hasMore={hasNextPage ?? false}
+      >
+        <div className="row" style={mainContentStyle}>
+          <h2>List of Lawyers</h2>
+          {isLoading ? (
+            <p>Loading</p>
+          ) : lawyers && lawyers.length ? (
+            lawyers.map((item) => {
+              return (
+                <div
+                  key={item.userId}
+                  onClick={() => {
+                    navigate("/laywer-details", { state: { item } });
+                  }}
+                  className="card col-md-3 col-sm-4 col-xs-6 m-2"
+                  style={{ cursor: "pointer" }}
+                >
+                  <img
+                    src={item.avatar ?? ""}
+                    className="card-img-top p-2"
+                    style={{ aspectRatio: 1, objectFit: "cover" }}
+                    alt="..."
+                  />
+                  <div className="card-body">
+                    <p className="card-text">
+                      {item.firstName} {item.lastName}
+                    </p>
+                    <p>Rating: {item.averageRating}/5</p>
                   </div>
-                );
-              })
-            ) : (
-              <p>No Lawyers Found</p>
-            )}
-          </div>
-        </InfiniteScroll>
+                </div>
+              );
+            })
+          ) : (
+            <p>No Lawyers Found</p>
+          )}
+        </div>
+      </InfiniteScroll>
     </>
   );
 };
 
-export default Lawyers;
+export default LawyersPage;

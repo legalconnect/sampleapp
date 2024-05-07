@@ -1,8 +1,9 @@
 import { useQuery } from "react-query";
-import { PACKAGES_QUERY_KEY } from "../constants";
+import { APPOINTMENTS_QUERY_KEY, PACKAGES_QUERY_KEY } from "../constants";
 import {
   AppointmentsService,
   Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto,
+  LegalConnect_Shared_Core_Paging_PagedList_GetAppointmentOutputDto,
   LegalConnect_Shared_Core_Paging_PagedList_SubscriptionOutputDto as Subscriptions,
   SubscriptionsService,
 } from "../services";
@@ -34,9 +35,8 @@ export const useSubscriptionsAvailable = (
   });
 };
 
-export const createSubscription = async (
-  data: {
-    formData?: {
+export const createSubscription = async (data: {
+  formData?: {
     /**
      * Date scheduled for first Appointment
      */
@@ -79,20 +79,42 @@ export const createSubscription = async (
      */
     numberOfPages?: number;
     files?: Array<Blob | File>;
-  }}
-) => {
+  };
+}) => {
   return await SubscriptionsService.postApiV1Subscriptions(data);
+};
 
-}
+export const createAppointment = async (data: {
+  subscriptionId: number;
+  scheduleDate: string;
+  discussionNotes?: string | null;
+  files: Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto[];
+}) => {
+  return await AppointmentsService.postApiV1Appointments({
+    requestBody: { ...data },
+  });
+};
 
-export const createAppointment = async (
-  data: {
-      subscriptionId: number;
-      scheduleDate: string;
-      discussionNotes?: string | null;
-      files: Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto[]
-  }
+export const useAppointments = (
+  clientUserId: string,
+  onSuccess: (
+    data: LegalConnect_Shared_Core_Paging_PagedList_GetAppointmentOutputDto
+  ) => void
 ) => {
-  return await AppointmentsService.postApiV1Appointments({ requestBody: {...data}});
-
-}
+  return useQuery({
+    queryFn: async () => {
+      var response = await AppointmentsService.getApiV1Appointments({
+        clientUserId,
+        statuses: ["Pending", "Missed", "Ended"],
+      });
+      if (response.result) {
+        return response.result;
+      }
+    },
+    queryKey: [APPOINTMENTS_QUERY_KEY, clientUserId],
+    enabled: Boolean(clientUserId),
+    onSuccess,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+  });
+};

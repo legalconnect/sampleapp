@@ -72,6 +72,9 @@ export type Developer_Dashboard_HttpAggregator_Contracts_Appointments_GetAppoint
      * Legal Practitioner User Id
      */
     practitionerUserId?: string | null;
+    practitionerName?: string | null;
+    practitionerEmail?: string | null;
+    practitionerProfileUrl?: string | null;
   };
 
 export type Developer_Dashboard_HttpAggregator_Contracts_Appointments_RescheduleApppointmentInputDto =
@@ -180,6 +183,68 @@ export type Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutput
      * Email of user who uploaded the file
      */
     userEmail?: string | null;
+  };
+
+export type Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileSharedOutputDto = {
+    /**
+     * File Id
+     **/
+    fileId: string;
+    /**
+     * File extension
+     **/
+    extension?: string;
+
+    /**
+     * File name
+     **/
+    fileName?: string;
+
+    /**
+     * File url
+     **/
+    fileUrl?: string;
+
+    /**
+     * True if file requires signing
+     **/
+    requireSigning: Boolean;
+
+    /**
+     * Signature status if File requires signing
+     **/
+    signatureStatus: LegalConnect_Common_Enums_SignatureStatus;
+
+    /**
+     * Users the file was share with
+     **/
+    usersSharedWith: Array<Developer_Dashboard_HttpAggregator_Contracts_Documents_UserMinimalDto>;
+    /**
+     * Date
+     **/
+    lastShared?: string;
+
+    /**
+     * Expire date
+     **/
+    expiresOn?: string;
+
+    /**
+     * Signing Ultimatum
+     **/
+    signByUltimatum?: string;
+  };
+
+export type Developer_Dashboard_HttpAggregator_Contracts_Documents_UserMinimalDto =
+  {
+    /**
+     * User's name
+     */
+    name?: string;
+    /**
+     * User's email
+     */
+    email?: string
   };
 
 export type Developer_Dashboard_HttpAggregator_Contracts_Documents_UserRequestedToSignDocumentDto =
@@ -821,6 +886,15 @@ export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_GetFi
     error?: LegalConnect_Shared_Core_Http_ErrorInfo;
     result?: LegalConnect_Shared_Core_Paging_PagedList_GetFileOutputDto;
   };
+  export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_GetFileSharedOutputDto =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    result?: LegalConnect_Shared_Core_Paging_PagedList_GetFileSharedOutputDto;
+  };
 
 export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_ServiceCategories =
   {
@@ -911,6 +985,12 @@ export type LegalConnect_Shared_Core_Paging_PagedList_GetAppointmentOutputDto =
 
 export type LegalConnect_Shared_Core_Paging_PagedList_GetFileOutputDto = {
   readonly data?: Array<Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto> | null;
+  totalCount?: number;
+  pageSize?: number;
+};
+
+export type LegalConnect_Shared_Core_Paging_PagedList_GetFileSharedOutputDto = {
+  readonly data?: Array<Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileSharedOutputDto> | null;
   totalCount?: number;
   pageSize?: number;
 };
@@ -1116,7 +1196,7 @@ export type $OpenApiTs = {
         /**
          * Success
          */
-        200: LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_GetFileOutputDto;
+        200: LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_GetFileSharedOutputDto;
         /**
          * Bad Request
          */

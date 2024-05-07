@@ -6,7 +6,6 @@ import {
   Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_GetLegalPractitionerOutputDto as Lawyer,
   Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_PractitionerScheduleDto as Schedule,
   Developer_Dashboard_HttpAggregator_Contracts_Subscriptions_SubscriptionOutputDto as Subscription,
-  LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_GetFilesOutputDto,
   Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto,
 } from "../services/types.gen";
 import {
@@ -21,7 +20,11 @@ import {
   useServiceDetails as useServiceDetails,
   useServiceVariationPackages,
 } from "../hooks/usePackages";
-import { createAppointment, createSubscription, useSubscriptionsAvailable } from "../hooks/useSubscriptions";
+import {
+  createAppointment,
+  createSubscription,
+  useSubscriptionsAvailable,
+} from "../hooks/useSubscriptions";
 import { useState } from "react";
 import { useClient } from "../hooks/useCities";
 import PackageCard from "../components/PackageCard";
@@ -566,7 +569,7 @@ export default function LawyerDetails() {
                   {mainState?.appointment?.files?.map((file) => (
                     <>
                       <Tag
-                      style={{cursor: "pointer"}}
+                        style={{ cursor: "pointer" }}
                         closable
                         onClose={() =>
                           setState((prev) => ({
@@ -580,7 +583,9 @@ export default function LawyerDetails() {
                           }))
                         }
                       >
-                        <label style={{cursor: "pointer"}} title={file.name}>{file.name.substring(0, 10)}...</label>
+                        <label style={{ cursor: "pointer" }} title={file.name}>
+                          {file.name.substring(0, 10)}...
+                        </label>
                       </Tag>
                     </>
                   ))}
@@ -616,7 +621,7 @@ export default function LawyerDetails() {
             <button
               className="btn btn-warning"
               style={{ color: "white" }}
-              onClick={async() => {
+              onClick={async () => {
                 setState((prev) => ({
                   ...prev,
                   shouldShowAppointmentForm: false,
@@ -806,26 +811,31 @@ export default function LawyerDetails() {
   }
 
   async function bookAppointment() {
-    let files: Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto[] = [];
-    if(mainState?.appointment?.files){
-      const response = await DocumentsService.postApiV1DocumentsAppointmentsBySubscriptionIdByLegalPractitionerUserId({
-        formData: {
-          files: mainState.appointment.files
-        },
-        legalPractitionerUserId: lawyer?.userId!,
-        subscriptionId: mainState?.activeSubscription?.id!
-      })
-
-      files = (response.success && response.result) ? response.result : []
-    }
     if (mainState?.activeSubscription) {
+      let files: Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto[] =
+        [];
+      if (mainState?.appointment?.files) {
+        const response =
+          await DocumentsService.postApiV1DocumentsAppointmentsBySubscriptionIdByLegalPractitionerUserId(
+            {
+              formData: {
+                files: mainState.appointment.files,
+              },
+              legalPractitionerUserId: lawyer?.userId!,
+              subscriptionId: mainState?.activeSubscription?.id!,
+            }
+          );
+
+        files = response.success && response.result ? response.result : [];
+      }
       // Create Appointment
       const appointmentDto = await createAppointment({
         subscriptionId: mainState?.activeSubscription?.id ?? 0,
         discussionNotes: mainState?.appointment?.discussionNotes,
         scheduleDate: mainState?.appointment?.scheduleDate?.toISOString() ?? "",
-        files
+        files,
       });
+      window.location.href = "/appointments";
       toaster.push(<Message>Appointment Created Successfully</Message>);
     } else {
       const subscriptionDto = await createSubscription({
@@ -833,16 +843,16 @@ export default function LawyerDetails() {
           scheduleDate: mainState?.appointment?.scheduleDate?.toDateString(),
           discussionNotes: mainState?.appointment?.discussionNotes,
           clientUserId: client!.userId ?? "",
-          practitionerUserId: lawyer!.userId  ?? "",
+          practitionerUserId: lawyer!.userId ?? "",
           serviceId: mainState?.selectedService?.serviceId ?? 0,
           variationId: mainState?.selectedServiceVariation?.id ?? 0,
           packageId: mainState?.appointment?.selectedPackageId ?? 0,
           callbackUrl: "http://localhost:3000/appointments",
-          files: mainState?.appointment?.files
-        }
-      })
-      if(subscriptionDto.result?.paymentUrl)
-        window.location.href=subscriptionDto.result.paymentUrl;
+          files: mainState?.appointment?.files,
+        },
+      });
+      if (subscriptionDto.result?.paymentUrl)
+        window.location.href = subscriptionDto.result.paymentUrl;
     }
   }
 }

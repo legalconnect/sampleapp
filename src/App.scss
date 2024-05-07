@@ -9,6 +9,17 @@ $list-group-active-border-color:    $lg_theme_color;
 $list-group-hover-bg:               $lg_theme_color;
 $list-group-action-hover-color:     white;
 
+// Nav tab and underline variable override
+$navbar-light-color:                rgba(var(--#{$prefix}emphasis-color-rgb), .65);
+$navbar-light-hover-color:          $lg_theme_color;
+$navbar-light-active-color:         $lg_theme_color;
+$navbar-light-disabled-color:       rgba(var(--#{$prefix}emphasis-color-rgb), .3);
+$navbar-light-icon-color:           rgba($body-color, .75);
+$navbar-light-toggler-icon-bg:      url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='#{$navbar-light-icon-color}' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
+$navbar-light-toggler-border-color: rgba(var(--#{$prefix}emphasis-color-rgb), .15);
+$navbar-light-brand-color:          $lg_theme_color;
+$navbar-light-brand-hover-color:    $lg_theme_color;
+
 // Required
 @import "../node_modules/bootstrap/scss/bootstrap";
 

@@ -5,4 +5,6 @@ export const CITIES_QUERY_KEY = "cities";
 export const SERVICES_QUERY_KEY = "services";
 export const PACKAGES_QUERY_KEY = "packages";
 export const APPOINTMENT_SLOT_QUERY_KEY = "appointment_booking_time_slot_key";
+export const APPOINTMENTS_QUERY_KEY = "appointment_booking_time_slot_key";
 export const CLIENT_QUERY_KEY = "client";
+export const DOCUMENTS_QUERY_KEY = "documents";
