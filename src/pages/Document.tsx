@@ -1,15 +1,281 @@
 import { useDocuments } from "../hooks/useDocuments";
-import { Card } from "react-bootstrap";
+import { Card, Modal } from "react-bootstrap";
 import pdfIcon from "../../src/assets/pdf.svg";
 import msWordIcon from "../../src/assets/ms-word.svg";
 import { Tag } from "rsuite";
+import { useState } from "react";
+import { DocumentsService } from "../services";
+import { useNavigate } from "react-router-dom";
+import { CloseIcon } from "../components/SVG";
+import LoadingModal from "../components/LoadingModal";
 
+type DocumentState = {
+  shouldShowModal?: Boolean;
+  selectedFile?: File;
+  isFilesUploaded?: Boolean;
+  uploadedFileId?: string | null;
+  recipients?: {
+    id: number;
+    email?: string;
+    name?: string;
+  }[];
+  isLoading?: Boolean;
+  loadingText?: string;
+};
 export default function DocumentPage() {
+  const navigate = useNavigate();
   const { data: documents, isLoading } = useDocuments();
 
-  const handleDocumentButtonClick = () => {
-
+  const [mainState, setState] = useState<DocumentState>();
+  const showLoading = (text?: string) => {
+    setState((prev) => ({ ...prev, isLoading: true, loadingText: text }));
   };
+  const hideLoading = () => {
+    setState((prev) => ({ ...prev, isLoading: false }));
+  };
+  const handleFileSelectButtonClick = () => {
+    // Create a temporary input element
+    const input = document.createElement("input");
+    input.type = "file";
+    input.multiple = false;
+
+    // Trigger a click event on the input element
+    input.click();
+
+    // Remove the input element from the DOM after the file has been selected
+    input.addEventListener("change", (event: Event) => {
+      const target = event.target as HTMLInputElement;
+      const files = target.files; // Array of selected files
+
+      const filesArray = files ? Array.from(files) : [];
+      if (!filesArray.length) return;
+
+      const selectedFile = filesArray[0];
+      setState((prev) => ({ ...prev, selectedFile }));
+      input.remove();
+    });
+  };
+
+  const handleFileUploadButtonClick = async () => {
+    if (!mainState?.selectedFile) {
+      hideLoading();
+      return;
+    }
+
+    const { result: files } = await DocumentsService.postApiV1DocumentsSave({
+      formData: {
+        files: [mainState.selectedFile],
+      },
+    });
+
+    if (files?.length === 0) {
+      hideLoading();
+      return;
+    }
+
+    setState((prev) => ({
+      ...prev,
+      isFilesUploaded: true,
+      uploadedFileId: files?.length ? files[0].fileId : undefined,
+    }));
+
+    hideLoading();
+  };
+
+  const requestSignatureClaim = async () => {
+    const response =
+      await DocumentsService.postApiV1DocumentsEmbeddedSignatureRequest({
+        requestBody: {
+          fileId: mainState?.uploadedFileId,
+          recipients: mainState?.recipients?.map((m) => ({
+            email: m.email!,
+            name: m.name,
+          })),
+          expiresOn: null,
+          signByUltimatum: null,
+          redirectUrl: "/documents",
+          linkExpiration: 10,
+        },
+      });
+
+    if (response.result?.claimUrl) {
+      hideLoading();
+      setState({ shouldShowModal: false });
+      navigate("/documentSignatureRequest", {
+        state: { item: response.result.claimUrl },
+      });
+    }
+    hideLoading();
+  };
+
+  const DocumentSigningFlow_Modal = () => {
+    return (
+      <div className="align-items-center">
+        <Modal
+          show={Boolean(mainState?.shouldShowModal)}
+          onHide={() =>
+            setState((prev) => ({ ...prev, shouldShowModal: false }))
+          }
+          centered
+          size="lg"
+        >
+          <Modal.Header className="text-">
+            Submit Document for Signing
+          </Modal.Header>
+          <Modal.Body>
+            <>
+              <div>
+                <div>
+                  <b>Select Document</b>
+                </div>
+                <div>
+                  {mainState?.selectedFile &&
+                    (mainState.isFilesUploaded ? (
+                      <Tag size="lg" style={{ cursor: "pointer" }}>
+                        <label
+                          style={{ cursor: "pointer" }}
+                          title={mainState.selectedFile.name}
+                        >
+                          {mainState.selectedFile.name}
+                        </label>
+                      </Tag>
+                    ) : (
+                      <Tag
+                        size="lg"
+                        style={{ cursor: "pointer" }}
+                        closable
+                        onClose={() =>
+                          setState((prev) => ({
+                            ...prev,
+                            selectedFile: undefined,
+                          }))
+                        }
+                      >
+                        <label
+                          style={{ cursor: "pointer" }}
+                          title={mainState.selectedFile.name}
+                        >
+                          {mainState.selectedFile.name}
+                        </label>
+                      </Tag>
+                    ))}
+                </div>
+                {mainState?.selectedFile ? (
+                  <button
+                    disabled={mainState.isFilesUploaded ? true : false}
+                    className="btn btn-outline-warning"
+                    onClick={() => {
+                      showLoading("Uploading file...");
+                      handleFileUploadButtonClick();
+                    }}
+                  >
+                    Upload Document
+                  </button>
+                ) : (
+                  <button
+                    disabled={mainState?.isFilesUploaded ? true : false}
+                    className="btn btn-outline-warning"
+                    onClick={handleFileSelectButtonClick}
+                  >
+                    Select Document(.pfd or .docx)
+                  </button>
+                )}
+              </div>
+              <hr></hr>
+              {mainState?.isFilesUploaded && (
+                <>
+                  <p>Specify Recipients</p>
+                  {mainState?.recipients?.map((recipient) => {
+                    return (
+                      <div className="input-group mb-2">
+                        <input
+                          name="recipients"
+                          className="form-control"
+                          value={recipient.email}
+                          placeholder="Enter email"
+                          onChange={(e) => {
+                            const email = e.target.value;
+                            setState((prev) => ({
+                              ...prev,
+                              recipients: prev?.recipients?.map((r) =>
+                                r.id === recipient.id
+                                  ? { ...r, email: email }
+                                  : r
+                              ),
+                            }));
+                          }}
+                        />
+                        <span
+                          style={{ cursor: "pointer" }}
+                          className="input-group-text"
+                          onClick={() => {
+                            if (mainState.recipients?.length === 1) return;
+                            setState((prev) => ({
+                              ...prev,
+                              recipients: prev?.recipients?.filter(
+                                (r) => r.id !== recipient.id
+                              ),
+                            }));
+                          }}
+                        >
+                          <CloseIcon />
+                        </span>
+                      </div>
+                    );
+                  })}
+                  <button
+                    className="btn btn-outline-warning mt-3"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setState((prev) => {
+                        if (prev?.recipients?.length) {
+                          const lastRecipientIndex: number =
+                            prev.recipients.length - 1;
+                          const lastRecipient =
+                            prev.recipients[lastRecipientIndex];
+                          if (lastRecipient && lastRecipient.email !== "") {
+                            prev.recipients.push({
+                              id: (lastRecipient.id ? lastRecipient.id : 0) + 1,
+                              email: "",
+                            });
+                          }
+                        }
+                        return { ...prev, recipients: prev?.recipients };
+                      });
+                    }}
+                  >
+                    Add Recipient
+                  </button>
+                </>
+              )}
+            </>
+          </Modal.Body>
+          <Modal.Footer>
+            <button
+              disabled={
+                mainState?.isFilesUploaded && mainState.recipients?.length
+                  ? false
+                  : true
+              }
+              className="btn btn-warning"
+              style={{ color: "white" }}
+              onClick={async () => {
+                setState((prev) => ({
+                  ...prev,
+                  shouldShowAppointmentForm: false,
+                }));
+                showLoading("Requesting Signature Claim");
+                await requestSignatureClaim();
+              }}
+            >
+              Proceed
+            </button>
+          </Modal.Footer>
+        </Modal>
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="sticky-top bg-white" style={{ top: "50px" }}>
@@ -20,7 +286,16 @@ export default function DocumentPage() {
         <button
           className="btn btn-warning bg-lg"
           style={{ color: "white" }}
-          onClick={handleDocumentButtonClick}
+          onClick={() =>
+            setState({
+              shouldShowModal: true,
+              recipients: [
+                {
+                  id: 1,
+                },
+              ],
+            })
+          }
         >
           Upload Document for Signing
         </button>
@@ -64,7 +339,7 @@ export default function DocumentPage() {
                             )}
                         </p>
                         Shared with:
-                        {document.usersSharedWith.map((user, index) => (
+                        {document.usersSharedWith?.map((user, index) => (
                           <Tag key={index}>
                             <label>{user.name ? user.email : user.name}</label>
                           </Tag>
@@ -86,6 +361,15 @@ export default function DocumentPage() {
           })}
         </>
       )}
+      {DocumentSigningFlow_Modal()}
+
+      {LoadingModal({
+        shouldShowModal: mainState?.isLoading ? true : false,
+        text: mainState?.loadingText,
+        onHide: () => {
+          setState((prev) => ({ ...prev, isLoading: false }));
+        },
+      })}
     </>
   );
 }

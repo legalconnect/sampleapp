@@ -31,6 +31,7 @@ import PackageCard from "../components/PackageCard";
 import Calendar from "react-calendar";
 import { Message, Tag, useToaster } from "rsuite";
 import { DocumentsService } from "../services";
+import LoadingModal from "../components/LoadingModal";
 
 type LawyerDetailsState = {
   exemptedDays?: number[]; // doesn't change
@@ -53,6 +54,8 @@ type LawyerDetailsState = {
   shouldShowPackage?: Boolean;
   shouldShowAppointmentDates?: Boolean;
   shouldShowAppointmentForm?: Boolean;
+  isLoading?: boolean;
+  loadingText?: string;
 };
 
 export default function LawyerDetails() {
@@ -64,6 +67,8 @@ export default function LawyerDetails() {
     return { ...m };
   });
   const [mainState, setState] = useState<LawyerDetailsState>();
+  const showLoading = (text?: string) => setState(prev=>({...prev, isLoading: true, loadingText: text }))
+  const hideLoading = () => setState(prev=>({...prev, isLoading: false }))
 
   const { refetch: refetchSchedule } = useLegalPractitionerSchedule(
     lawyer.userId ?? "",
@@ -626,6 +631,7 @@ export default function LawyerDetails() {
                   ...prev,
                   shouldShowAppointmentForm: false,
                 }));
+                showLoading("Submitting...")
                 await bookAppointment();
               }}
             >
@@ -636,6 +642,86 @@ export default function LawyerDetails() {
       </div>
     );
   };
+
+
+  function generateBookingDates(
+    daysExempted: number[],
+    dayAvailability: Availability[],
+    disabledDayIndicator: number
+  ): number[] {
+    if (!dayAvailability || dayAvailability.length === 0) {
+      daysExempted.push(disabledDayIndicator);
+    }
+    return daysExempted;
+  }
+
+  function generateBookingSchedule(schedule: Schedule | undefined): number[] {
+    const monday = schedule?.monday ?? [];
+    const tuesday = schedule?.tuesday ?? [];
+    const wednesday = schedule?.wednesday ?? [];
+    const thursday = schedule?.thursday ?? [];
+    const friday = schedule?.friday ?? [];
+    const saturday = schedule?.saturday ?? [];
+    const sunday = schedule?.sunday ?? [];
+
+    let daysExempted: number[] = [];
+
+    daysExempted = generateBookingDates(daysExempted, monday, 1);
+    daysExempted = generateBookingDates(daysExempted, tuesday, 2);
+    daysExempted = generateBookingDates(daysExempted, wednesday, 3);
+    daysExempted = generateBookingDates(daysExempted, thursday, 4);
+    daysExempted = generateBookingDates(daysExempted, friday, 5);
+    daysExempted = generateBookingDates(daysExempted, saturday, 6);
+    daysExempted = generateBookingDates(daysExempted, sunday, 0);
+    return daysExempted;
+  }
+
+  async function bookAppointment() {
+    if (mainState?.activeSubscription) {
+      let files: Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto[] =
+        [];
+      if (mainState?.appointment?.files) {
+        const response =
+          await DocumentsService.postApiV1DocumentsAppointmentsBySubscriptionIdByLegalPractitionerUserId(
+            {
+              formData: {
+                files: mainState.appointment.files,
+              },
+              legalPractitionerUserId: lawyer?.userId!,
+              subscriptionId: mainState?.activeSubscription?.id!,
+            }
+          );
+
+        files = response.success && response.result ? response.result : [];
+      }
+      // Create Appointment
+      const appointmentDto = await createAppointment({
+        subscriptionId: mainState?.activeSubscription?.id ?? 0,
+        discussionNotes: mainState?.appointment?.discussionNotes,
+        scheduleDate: mainState?.appointment?.scheduleDate?.toISOString() ?? "",
+        files,
+      });
+      window.location.href = "/appointments";
+      toaster.push(<Message>Appointment Created Successfully</Message>);
+    } else {
+      const subscriptionDto = await createSubscription({
+        formData: {
+          scheduleDate: mainState?.appointment?.scheduleDate?.toDateString(),
+          discussionNotes: mainState?.appointment?.discussionNotes,
+          clientUserId: client!.userId ?? "",
+          practitionerUserId: lawyer!.userId ?? "",
+          serviceId: mainState?.selectedService?.serviceId ?? 0,
+          variationId: mainState?.selectedServiceVariation?.id ?? 0,
+          packageId: mainState?.appointment?.selectedPackageId ?? 0,
+          callbackUrl: "http://localhost:3000/appointments",
+          files: mainState?.appointment?.files,
+        },
+      });
+      if (subscriptionDto.result?.paymentUrl)
+        window.location.href = subscriptionDto.result.paymentUrl;
+    }
+    hideLoading();
+  }
 
   return (
     <>
@@ -775,84 +861,15 @@ export default function LawyerDetails() {
       {Packages_Modal()}
       {AppointmentDates_Modal()}
       {AppointmentForm_Modal()}
+      {LoadingModal({
+        shouldShowModal: mainState?.isLoading ? true : false,
+        text: mainState?.loadingText,
+        onHide: () => {
+          setState((prev) => ({ ...prev, isLoading: false }));
+        },
+      })}
     </>
   );
 
-  function generateBookingDates(
-    daysExempted: number[],
-    dayAvailability: Availability[],
-    disabledDayIndicator: number
-  ): number[] {
-    if (!dayAvailability || dayAvailability.length === 0) {
-      daysExempted.push(disabledDayIndicator);
-    }
-    return daysExempted;
-  }
 
-  function generateBookingSchedule(schedule: Schedule | undefined): number[] {
-    const monday = schedule?.monday ?? [];
-    const tuesday = schedule?.tuesday ?? [];
-    const wednesday = schedule?.wednesday ?? [];
-    const thursday = schedule?.thursday ?? [];
-    const friday = schedule?.friday ?? [];
-    const saturday = schedule?.saturday ?? [];
-    const sunday = schedule?.sunday ?? [];
-
-    let daysExempted: number[] = [];
-
-    daysExempted = generateBookingDates(daysExempted, monday, 1);
-    daysExempted = generateBookingDates(daysExempted, tuesday, 2);
-    daysExempted = generateBookingDates(daysExempted, wednesday, 3);
-    daysExempted = generateBookingDates(daysExempted, thursday, 4);
-    daysExempted = generateBookingDates(daysExempted, friday, 5);
-    daysExempted = generateBookingDates(daysExempted, saturday, 6);
-    daysExempted = generateBookingDates(daysExempted, sunday, 0);
-    return daysExempted;
-  }
-
-  async function bookAppointment() {
-    if (mainState?.activeSubscription) {
-      let files: Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto[] =
-        [];
-      if (mainState?.appointment?.files) {
-        const response =
-          await DocumentsService.postApiV1DocumentsAppointmentsBySubscriptionIdByLegalPractitionerUserId(
-            {
-              formData: {
-                files: mainState.appointment.files,
-              },
-              legalPractitionerUserId: lawyer?.userId!,
-              subscriptionId: mainState?.activeSubscription?.id!,
-            }
-          );
-
-        files = response.success && response.result ? response.result : [];
-      }
-      // Create Appointment
-      const appointmentDto = await createAppointment({
-        subscriptionId: mainState?.activeSubscription?.id ?? 0,
-        discussionNotes: mainState?.appointment?.discussionNotes,
-        scheduleDate: mainState?.appointment?.scheduleDate?.toISOString() ?? "",
-        files,
-      });
-      window.location.href = "/appointments";
-      toaster.push(<Message>Appointment Created Successfully</Message>);
-    } else {
-      const subscriptionDto = await createSubscription({
-        formData: {
-          scheduleDate: mainState?.appointment?.scheduleDate?.toDateString(),
-          discussionNotes: mainState?.appointment?.discussionNotes,
-          clientUserId: client!.userId ?? "",
-          practitionerUserId: lawyer!.userId ?? "",
-          serviceId: mainState?.selectedService?.serviceId ?? 0,
-          variationId: mainState?.selectedServiceVariation?.id ?? 0,
-          packageId: mainState?.appointment?.selectedPackageId ?? 0,
-          callbackUrl: "http://localhost:3000/appointments",
-          files: mainState?.appointment?.files,
-        },
-      });
-      if (subscriptionDto.result?.paymentUrl)
-        window.location.href = subscriptionDto.result.paymentUrl;
-    }
-  }
 }

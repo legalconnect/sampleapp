@@ -14,6 +14,7 @@ import { authorize, userManager } from "./AuthManager";
 import Callback from "./pages/Callback";
 import LawyerDetails from "./pages/LawyerDetails";
 import LawyersPage from "./pages/LawyersPage";
+import DocumentSignatureRequest from "./pages/DocumentSignatureRequest";
 
 OpenAPI.interceptors.response.use((response) => {
   if (response.status === 401) {
@@ -53,7 +54,8 @@ function App() {
               <Route path="appointments" element={<AppointmentPage />} />
               <Route path="lawyers" element={<LawyersPage />} />
               <Route path="documents" element={<DocumentPage />} />
-              <Route path="laywer-details" element={<LawyerDetails />} />
+              <Route path="documentSignatureRequest" element={<DocumentSignatureRequest />} />
+              <Route path="lawyer-details" element={<LawyerDetails />} />
               <Route path="*" element={<NoPage />} />
             </Route>
           </Routes>

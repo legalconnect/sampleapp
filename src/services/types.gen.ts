@@ -896,6 +896,16 @@ export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_GetFi
     result?: LegalConnect_Shared_Core_Paging_PagedList_GetFileSharedOutputDto;
   };
 
+  export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_List_GetFileSharedOutputDto =
+  {
+    /**
+     * Indicates success status of the result.
+     */
+    success?: boolean;
+    error?: LegalConnect_Shared_Core_Http_ErrorInfo;
+    result?: Array<Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileSharedOutputDto> | null;
+  };
+
 export type LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_ServiceCategories =
   {
     /**
@@ -1266,7 +1276,7 @@ export type $OpenApiTs = {
         /**
          * Success
          */
-        200: LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_PagedList_GetFileOutputDto;
+        200: LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_List_GetFileSharedOutputDto;
         /**
          * Bad Request
          */
