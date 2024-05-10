@@ -41,8 +41,7 @@ export type OpenAPIConfig = {
 };
 
 export const OpenAPI: OpenAPIConfig = {
-	// BASE: ' https://staging.legalconnectonline.com/developer-dashboard-httpaggregator',
-	BASE: 'https://localhost:7457',
+	BASE: ' https://staging.legalconnectonline.com/developer-dashboard-httpaggregator',
 	CREDENTIALS: 'include',
 	ENCODE_PATH: undefined,
 	HEADERS: undefined,
