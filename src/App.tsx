@@ -55,7 +55,7 @@ function App() {
               <Route path="lawyers" element={<LawyersPage />} />
               <Route path="documents" element={<DocumentPage />} />
               <Route path="documentSignatureRequest" element={<DocumentSignatureRequest />} />
-              <Route path="lawyer-details" element={<LawyerDetails />} />
+              <Route path="lawyser-details" element={<LawyerDetails />} />
               <Route path="*" element={<NoPage />} />
             </Route>
           </Routes>

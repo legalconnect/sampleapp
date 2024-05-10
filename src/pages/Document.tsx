@@ -6,7 +6,7 @@ import { Tag } from "rsuite";
 import { useState } from "react";
 import { DocumentsService } from "../services";
 import { useNavigate } from "react-router-dom";
-import { CloseIcon } from "../components/SVG";
+import { CloseIcon, DownloadIcon } from "../components/SVG";
 import LoadingModal from "../components/LoadingModal";
 
 type DocumentState = {
@@ -93,7 +93,7 @@ export default function DocumentPage() {
           })),
           expiresOn: null,
           signByUltimatum: null,
-          redirectUrl: "/documents",
+          redirectUrl: "http://localhost:3003/documents",
           linkExpiration: 10,
         },
       });
@@ -101,9 +101,7 @@ export default function DocumentPage() {
     if (response.result?.claimUrl) {
       hideLoading();
       setState({ shouldShowModal: false });
-      navigate("/documentSignatureRequest", {
-        state: { item: response.result.claimUrl },
-      });
+      window.location.href = response.result.claimUrl;
     }
     hideLoading();
   };
@@ -323,21 +321,26 @@ export default function DocumentPage() {
                         <img src={msWordIcon} />
                       )}
                     </div>
-                    <div className="col-6 row justify">
-                      <div>
+                    <div className="col-10 row justify">
+                      <div className="align-items-start">
                         <h4>{document.fileName}</h4>
-                        <p className="text-body-secondary">
-                          {document.lastShared &&
-                            new Date(document.lastShared).toLocaleDateString(
-                              undefined,
-                              {
-                                weekday: "long",
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              }
-                            )}
-                        </p>
+                        <a download href={document.fileUrl}>
+                          <DownloadIcon className="float-end" />
+                        </a>
+                      </div>
+                      <p className="text-body-secondary">
+                        {document.lastShared &&
+                          new Date(document.lastShared).toLocaleDateString(
+                            undefined,
+                            {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
+                      </p>
+                      <div>
                         Shared with:
                         {document.usersSharedWith?.map((user, index) => (
                           <Tag key={index}>
@@ -345,7 +348,6 @@ export default function DocumentPage() {
                           </Tag>
                         ))}
                       </div>
-
                       {document.requireSigning ? (
                         <p className="text-danger">Requires Signing</p>
                       ) : document.signatureStatus === 0 ? (

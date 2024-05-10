@@ -71,7 +71,7 @@ const Layout = () => {
           </div>
         </div>
       </nav>
-      <div className="p-5" style={{marginTop: "70px"}}>
+      <div className="p-5 h-100" style={{marginTop: "70px"}}>
         <Outlet />
       </div>
     </>
