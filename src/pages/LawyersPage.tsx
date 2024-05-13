@@ -36,7 +36,7 @@ const LawyersPage = () => {
 
   const [shouldShowService, showServices] = useState(true);
   const [shouldShowCities, showCities] = useState(false);
-  const [shouldShowLangauges, showLanguages] = useState(false);
+  const [shouldShowLanguages, showLanguages] = useState(false);
 
   const sidebarStyles: CSSProperties = {
     position: "fixed",
@@ -168,7 +168,7 @@ const LawyersPage = () => {
             <div
               id="languages"
               className={
-                shouldShowLangauges
+                shouldShowLanguages
                   ? "accordion-collapse collapse show"
                   : "accordion-collapse collapse"
               }
@@ -216,7 +216,7 @@ const LawyersPage = () => {
                 <div
                   key={item.userId}
                   onClick={() => {
-                    navigate("/laywer-details", { state: { item } });
+                    navigate("/lawyer-details", { state: { item } });
                   }}
                   className="card col-md-3 col-sm-4 col-xs-6 m-2"
                   style={{ cursor: "pointer" }}
