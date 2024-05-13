@@ -1,12 +1,12 @@
 import { useLocation } from "react-router-dom";
 import {
-  Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_AvailableTimeDto as Availability,
-  Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceOutputDto as Service,
-  Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceVariationPackagesOutputDto as ServiceVariationPackages,
-  Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_GetLegalPractitionerOutputDto as Lawyer,
-  Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_PractitionerScheduleDto as Schedule,
-  Developer_Dashboard_HttpAggregator_Contracts_Subscriptions_SubscriptionOutputDto as Subscription,
-  Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto,
+  AvailableTimeDto as Availability,
+  ServiceOutputDto as Service,
+  ServiceVariationPackagesOutputDto as ServiceVariationPackages,
+  GetLegalPractitionerOutputDto as Lawyer,
+  PractitionerScheduleDto as Schedule,
+  SubscriptionOutputDto as Subscription,
+  GetFileOutputDto,
 } from "../services/types.gen";
 import {
   useAppointmentBookingSlots,
@@ -678,7 +678,7 @@ export default function LawyerDetails() {
 
   async function bookAppointment() {
     if (mainState?.activeSubscription) {
-      let files: Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto[] =
+      let files: GetFileOutputDto[] =
         [];
       if (mainState?.appointment?.files) {
         const response =
@@ -713,7 +713,7 @@ export default function LawyerDetails() {
           serviceId: mainState?.selectedService?.serviceId ?? 0,
           variationId: mainState?.selectedServiceVariation?.id ?? 0,
           packageId: mainState?.appointment?.selectedPackageId ?? 0,
-          callbackUrl: "http://localhost:3000/appointments",
+          callbackUrl: "http://localhost:3003/appointments",
           files: mainState?.appointment?.files,
         },
       });

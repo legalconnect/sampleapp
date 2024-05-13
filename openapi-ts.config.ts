@@ -2,7 +2,7 @@
 import { defineConfig } from '@hey-api/openapi-ts';
 
 export default defineConfig({
-  base: 'https://localhost:7457/api/v1',
+  base: 'https://staging.legalconnectonline.com/developer-dashboard-httpaggregator',
   client: 'axios',
   format: 'prettier',
   input: 'https://staging.legalconnectonline.com/developer-dashboard-httpaggregator/swagger/v1/swagger.yaml',

@@ -41,7 +41,7 @@ export type OpenAPIConfig = {
 };
 
 export const OpenAPI: OpenAPIConfig = {
-	BASE: ' https://staging.legalconnectonline.com/developer-dashboard-httpaggregator',
+	BASE: 'https://localhost:7457',
 	CREDENTIALS: 'include',
 	ENCODE_PATH: undefined,
 	HEADERS: undefined,
@@ -55,4 +55,3 @@ export const OpenAPI: OpenAPIConfig = {
 		response: new Interceptors(),
 	},
 };
-

@@ -2,9 +2,9 @@ import { useQuery } from "react-query";
 import { APPOINTMENTS_QUERY_KEY, PACKAGES_QUERY_KEY } from "../constants";
 import {
   AppointmentsService,
-  Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto,
-  LegalConnect_Shared_Core_Paging_PagedList_GetAppointmentOutputDto,
-  LegalConnect_Shared_Core_Paging_PagedList_SubscriptionOutputDto as Subscriptions,
+  GetFileOutputDto,
+  GetAppointmentOutputDtoPagedList,
+  SubscriptionOutputDtoPagedList as Subscriptions,
   SubscriptionsService,
 } from "../services";
 
@@ -88,7 +88,7 @@ export const createAppointment = async (data: {
   subscriptionId: number;
   scheduleDate: string;
   discussionNotes?: string | null;
-  files: Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto[];
+  files: GetFileOutputDto[];
 }) => {
   return await AppointmentsService.postApiV1Appointments({
     requestBody: { ...data },
@@ -98,7 +98,7 @@ export const createAppointment = async (data: {
 export const useAppointments = (
   clientUserId: string,
   onSuccess: (
-    data: LegalConnect_Shared_Core_Paging_PagedList_GetAppointmentOutputDto
+    data: GetAppointmentOutputDtoPagedList
   ) => void
 ) => {
   return useQuery({

@@ -6,10 +6,10 @@ const authConfig: UserManagerSettings = {
     // staging
     authority: 'https://staging.legalconnectonline.com/legalconnect-identityserver', //Replace with your issuer URL
     client_id: '', //Replace with your client id
-    redirect_uri: 'http://localhost:3003/callback', //Replace with your login redirect url
+    redirect_uri: 'http://localhost:3000/callback', //Replace with your login redirect url
     response_type: 'code',
     scope: scopes,
-    post_logout_redirect_uri: 'http://localhost:3003/', //Replace with your login redirect url
+    post_logout_redirect_uri: 'http://localhost:3000/',
     response_mode: 'query',
   };
 

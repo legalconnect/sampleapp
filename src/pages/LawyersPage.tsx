@@ -5,7 +5,7 @@ import { useCities } from "../hooks/useCities";
 import { useLanguages } from "../hooks/useLanguages";
 import { useServices } from "../hooks/useServices";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_GetLegalPractitionerOutputDto as LegalPractitioner } from "../services";
+import { GetLegalPractitionerOutputDto as LegalPractitioner } from "../services";
 
 const LawyersPage = () => {
   const [selectedServices, selectService] = useState<string[]>([""]);
@@ -82,7 +82,7 @@ const LawyersPage = () => {
             >
               <div className="accordion-body">
                 {services?.data?.map((service) => (
-                  <div key={service.serviceId}>
+                  <div key={service.id}>
                     <label
                       className="form-check-label"
                       style={{ cursor: "pointer" }}

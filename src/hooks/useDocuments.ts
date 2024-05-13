@@ -6,7 +6,7 @@ export const useDocuments = () => {
   return useQuery({
     queryFn: async () => {
       var response = await DocumentsService.getApiV1DocumentsMe({
-        signingRequried: true,
+        signingRequired: true,
       });
       return response.result;
     },

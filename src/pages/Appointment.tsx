@@ -3,7 +3,7 @@ import { useClient } from "../hooks/useCities";
 import { useAppointments } from "../hooks/useSubscriptions";
 import { Card } from "react-bootstrap";
 import { DoubleDownIcon, DoubleUpIcon } from "../components/SVG";
-import { Developer_Dashboard_HttpAggregator_Contracts_Appointments_GetAppointmentOutputDto as Appointment } from "../services";
+import { GetAppointmentOutputDto as Appointment } from "../services";
 
 type LCAppointment = {
   data: Appointment;
