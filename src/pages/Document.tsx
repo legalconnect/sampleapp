@@ -324,7 +324,7 @@ export default function DocumentPage() {
                     <div className="col-10 row justify">
                       <div className="align-items-start">
                         <h4>{document.fileName}</h4>
-                        <a download href={document.fileUrl}>
+                        <a download href={document.fileUrl ?? ""}>
                           <DownloadIcon className="float-end" />
                         </a>
                       </div>

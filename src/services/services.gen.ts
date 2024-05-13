@@ -19,13 +19,13 @@ export class AppointmentsService {
      * * `Cancelled` - Appointment was cancelled,
      * * `Missed` - Appointment was missed.,
      * * `Rescheduled` - Appointment was rescheduled,
-     * @param data.from The starting date schedulted rage to filter the appointments result
+     * @param data.from The starting date scheduled rage to filter the appointments result
      * @param data.to The ending date range of the schedule to filter the appointments result.
-     * @param data.disablePagination If set to true, the default paga size of 20 will be ignored if no PageSize is specified.
+     * @param data.disablePagination If set to true, the default page size of 20 will be ignored if no PageSize is specified.
      * @param data.page Page number of record. NB: Zero indexed based
      * @param data.pageSize Page size of records. Default to 20
      * @param data.skipCount
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<LegalConnect_Shared_Core_Paging_PagedList_1__Developer_Dashboard_HttpAggregator_Contracts_Appointments_GetAppointmentOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null____LegalConnect_Shared_Core__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @returns GetAppointmentOutputDtoPagedListHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1Appointments(data: $OpenApiTs['/api/v1/appointments']['get']['req']): CancelablePromise<$OpenApiTs['/api/v1/appointments']['get']['res'][200]> {
@@ -60,7 +60,7 @@ export class AppointmentsService {
      * * 2.Add array object response you got from endpoint above to this request as Files
      * @param data The data for the request.
      * @param data.requestBody
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<Developer_Dashboard_HttpAggregator_Contracts_Appointments_GetAppointmentOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @returns GetAppointmentOutputDtoHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static postApiV1Appointments(data: $OpenApiTs['/api/v1/appointments']['post']['req'] = {}): CancelablePromise<$OpenApiTs['/api/v1/appointments']['post']['res'][200]> {
@@ -82,7 +82,7 @@ export class AppointmentsService {
      * Reschedule Appointment
      * @param data The data for the request.
      * @param data.requestBody
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<Developer_Dashboard_HttpAggregator_Contracts_Appointments_GetAppointmentOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @returns GetAppointmentOutputDtoHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static putApiV1AppointmentsReschedule(data: $OpenApiTs['/api/v1/appointments/reschedule']['put']['req'] = {}): CancelablePromise<$OpenApiTs['/api/v1/appointments/reschedule']['put']['res'][200]> {
@@ -105,7 +105,7 @@ export class AppointmentsService {
 export class ClientsService {
     /**
      * Get Authenticated Client Details
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<LegalConnect_Common_Dtos_ClientDto__LegalConnect_Common__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @returns ClientDtoHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1ClientsMe(): CancelablePromise<$OpenApiTs['/api/v1/clients/Me']['get']['res'][200]> {
@@ -128,12 +128,12 @@ export class DocumentsService {
      * Get My Files
      * @param data The data for the request.
      * @param data.name Text value to filter by the File Name. Uses contains query
-     * @param data.signingRequried True if results should return only files that have been sent out for signatures
-     * @param data.disablePagination If set to true, the default paga size of 20 will be ignored if no PageSize is specified.
+     * @param data.signingRequired True if results should return only files that have been sent out for signatures
+     * @param data.disablePagination If set to true, the default page size of 20 will be ignored if no PageSize is specified.
      * @param data.page Page number of record. NB: Zero indexed based
      * @param data.pageSize Page size of records. Default to 20
      * @param data.skipCount
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<LegalConnect_Shared_Core_Paging_PagedList_1__Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null____LegalConnect_Shared_Core__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @returns GetFileOutputDtoPagedListHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1DocumentsMe(data: $OpenApiTs['/api/v1/documents/me']['get']['req'] = {}): CancelablePromise<$OpenApiTs['/api/v1/documents/me']['get']['res'][200]> {
@@ -142,7 +142,7 @@ export class DocumentsService {
             url: '/api/v1/documents/me',
             query: {
                 name: data.name,
-                signingRequried: data.signingRequried,
+                signingRequired: data.signingRequired,
                 disablePagination: data.disablePagination,
                 page: data.page,
                 pageSize: data.pageSize,
@@ -163,7 +163,7 @@ export class DocumentsService {
      * @param data.subscriptionId Subscription Id
      * @param data.legalPractitionerUserId User Id of Legal Practitioner
      * @param data.formData
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<System_Collections_Generic_List_1__Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null____System_Private_CoreLib__Version_6_0_0_0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e_> Success
+     * @returns GetFileOutputDtoListHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static postApiV1DocumentsAppointmentsBySubscriptionIdByLegalPractitionerUserId(data: $OpenApiTs['/api/v1/documents/appointments/{subscriptionId}/{legalPractitionerUserId}']['post']['req']): CancelablePromise<$OpenApiTs['/api/v1/documents/appointments/{subscriptionId}/{legalPractitionerUserId}']['post']['res'][200]> {
@@ -189,7 +189,7 @@ export class DocumentsService {
      * Upload files
      * @param data The data for the request.
      * @param data.formData
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<System_Collections_Generic_List_1__Developer_Dashboard_HttpAggregator_Contracts_Documents_GetFileOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null____System_Private_CoreLib__Version_6_0_0_0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e_> Success
+     * @returns GetFileOutputDtoListHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static postApiV1DocumentsSave(data: $OpenApiTs['/api/v1/documents/save']['post']['req'] = {}): CancelablePromise<$OpenApiTs['/api/v1/documents/save']['post']['res'][200]> {
@@ -213,7 +213,7 @@ export class DocumentsService {
      * This link allows users of an app to place signature fields on a document to send for signatures
      * @param data The data for the request.
      * @param data.requestBody
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<Developer_Dashboard_HttpAggregator_Contracts_Documents_EmbeddedSignatureRequestClaim__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @returns EmbeddedSignatureRequestClaimHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static postApiV1DocumentsEmbeddedSignatureRequest(data: $OpenApiTs['/api/v1/documents/embedded-signature-request']['post']['req'] = {}): CancelablePromise<$OpenApiTs['/api/v1/documents/embedded-signature-request']['post']['res'][200]> {
@@ -244,11 +244,11 @@ export class LegalPractitionersService {
      * @param data.languages Filter by language spoken by Legal Practitioners
      * @param data.location Filter by city of residence of Legal Practitioners
      * @param data.services Filter by list of Services offered by Legal Practitioners
-     * @param data.disablePagination If set to true, the default paga size of 20 will be ignored if no PageSize is specified.
+     * @param data.disablePagination If set to true, the default page size of 20 will be ignored if no PageSize is specified.
      * @param data.page Page number of record. NB: Zero indexed based
      * @param data.pageSize Page size of records. Default to 20
      * @param data.skipCount
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<LegalConnect_Shared_Core_Paging_PagedList_1__Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_GetLegalPractitionerOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null____LegalConnect_Shared_Core__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @returns GetLegalPractitionerOutputDtoPagedListHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1Legalpractitioners(data: $OpenApiTs['/api/v1/legalpractitioners']['get']['req'] = {}): CancelablePromise<$OpenApiTs['/api/v1/legalpractitioners']['get']['res'][200]> {
@@ -281,7 +281,7 @@ export class LegalPractitionersService {
      * A Legal Practitioner is a Legal Professional/Lawyer on the LegalConnect offer a variety of Legal Services. [See our services](https://legalconnectonline.com/#our-services)
      * @param data The data for the request.
      * @param data.userId Legal Practitioner User Id
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_GetLegalPractitionerOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @returns GetLegalPractitionerOutputDtoHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1LegalpractitionersByUserId(data: $OpenApiTs['/api/v1/legalpractitioners/{userId}']['get']['req']): CancelablePromise<$OpenApiTs['/api/v1/legalpractitioners/{userId}']['get']['res'][200]> {
@@ -305,9 +305,8 @@ export class LegalPractitionersService {
      * The schedule is a weekly availability of a Legal Practitioner.<br />
      * This is a list of date ranges per day of the week.
      * @param data The data for the request.
-     * @param data.userId
-     * @param data.practitionerId User Id of Legal Practitioner
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_PractitionerScheduleDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @param data.userId User Id of Legal Practitioner
+     * @returns PractitionerScheduleDtoHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1LegalpractitionersByUserIdSchedule(data: $OpenApiTs['/api/v1/legalpractitioners/{userId}/schedule']['get']['req']): CancelablePromise<$OpenApiTs['/api/v1/legalpractitioners/{userId}/schedule']['get']['res'][200]> {
@@ -330,9 +329,10 @@ export class LegalPractitionersService {
      * Get Booking Slots of Legal Practitioner
      * @param data The data for the request.
      * @param data.userId User Id of Legal Practitioner
-     * @param data.packageId Service Package Id
+     * @param data.packageId Package Id
+     * @param data.variationId Service Variation Id
      * @param data.date Day of schedule
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<System_Collections_Generic_List_1__System_DateTime__System_Private_CoreLib__Version_6_0_0_0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e____System_Private_CoreLib__Version_6_0_0_0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e_> Success
+     * @returns DateTimeListHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1LegalpractitionersByUserIdScheduleSlots(data: $OpenApiTs['/api/v1/legalpractitioners/{userId}/schedule/slots']['get']['req']): CancelablePromise<$OpenApiTs['/api/v1/legalpractitioners/{userId}/schedule/slots']['get']['res'][200]> {
@@ -362,7 +362,7 @@ export class LegalPractitionersService {
      * @param data The data for the request.
      * @param data.userId
      * @param data.requestBody
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<Developer_Dashboard_HttpAggregator_Contracts_LegalPractitioners_PractitionerScheduleDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @returns PractitionerScheduleDtoHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1LegalpractitionersByUserIdReviews(data: $OpenApiTs['/api/v1/legalpractitioners/{userId}/reviews']['get']['req']): CancelablePromise<$OpenApiTs['/api/v1/legalpractitioners/{userId}/reviews']['get']['res'][200]> {
@@ -387,7 +387,7 @@ export class LegalPractitionersService {
      * Get Cities
      * Gets the list of cities of residence of Legal Practitioners on the platform
      * With the list of cities, you can filter Legal Practitioner by cities they reside in
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<System_Collections_Generic_List_1__System_String__System_Private_CoreLib__Version_6_0_0_0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e____System_Private_CoreLib__Version_6_0_0_0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e_> Success
+     * @returns StringListHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1LegalpractitionersCities(): CancelablePromise<$OpenApiTs['/api/v1/legalpractitioners/cities']['get']['res'][200]> {
@@ -407,7 +407,7 @@ export class LegalPractitionersService {
      * Get Languages
      * Get's the list of languages spoken by Legal Practitioners on the LegalConnect platform. <br />
      * With the list of Languages, you can filter Legal Practitioner by language spoken
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<System_Collections_Generic_List_1__System_String__System_Private_CoreLib__Version_6_0_0_0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e____System_Private_CoreLib__Version_6_0_0_0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e_> Success
+     * @returns StringListHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1LegalpractitionersLanguages(): CancelablePromise<$OpenApiTs['/api/v1/legalpractitioners/languages']['get']['res'][200]> {
@@ -434,11 +434,11 @@ export class ServicesService {
      * @param data The data for the request.
      * @param data.categoryIds Category Ids of Service Categories to filter by
      * @param data.searchParam Text value to filter by the Service Title. Uses contains query
-     * @param data.disablePagination If set to true, the default paga size of 20 will be ignored if no PageSize is specified.
+     * @param data.disablePagination If set to true, the default page size of 20 will be ignored if no PageSize is specified.
      * @param data.page Page number of record. NB: Zero indexed based
      * @param data.pageSize Page size of records. Default to 20
      * @param data.skipCount
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<LegalConnect_Shared_Core_Paging_PagedList_1__Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null____LegalConnect_Shared_Core__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @returns AppointmentServiceOutputDtoPagedListHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1Services(data: $OpenApiTs['/api/v1/services']['get']['req'] = {}): CancelablePromise<$OpenApiTs['/api/v1/services']['get']['res'][200]> {
@@ -466,7 +466,7 @@ export class ServicesService {
      * Gets Service Details
      * @param data The data for the request.
      * @param data.id Service Id
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @returns AppointmentServiceOutputDtoHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1ServicesById(data: $OpenApiTs['/api/v1/services/{id}']['get']['req']): CancelablePromise<$OpenApiTs['/api/v1/services/{id}']['get']['res'][200]> {
@@ -495,7 +495,7 @@ export class ServicesService {
      * @param data.country Country user is accessing this Legal Service from. This is used to calculate the tax amount for the packages.
      * @param data.numberOfPages Only required when Service variation is of "Document Review"
      * @param data.campaignCode Discount Code
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<System_Collections_Generic_List_1__Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceVariationPackagesOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null____System_Private_CoreLib__Version_6_0_0_0__Culture_neutral__PublicKeyToken_7cec85d7bea7798e_> Success
+     * @returns ServiceVariationPackagesOutputDtoHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1ServicesVariationsByIdPackages(data: $OpenApiTs['/api/v1/services/variations/{id}/packages']['get']['req']): CancelablePromise<$OpenApiTs['/api/v1/services/variations/{id}/packages']['get']['res'][200]> {
@@ -525,8 +525,8 @@ export class ServicesService {
      * @param data.page Page number of record. NB: Zero indexed based
      * @param data.pageSize Page size of records. Default to 20
      * @param data.skipCount
-     * @param data.disablePagination If set to true, the default paga size of 20 will be ignored if no PageSize is specified.
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<LegalConnect_Shared_Core_Paging_PagedList_1__Developer_Dashboard_HttpAggregator_Contracts_Services_ServiceCategoryOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null____LegalConnect_Shared_Core__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @param data.disablePagination If set to true, the default page size of 20 will be ignored if no PageSize is specified.
+     * @returns ServiceCategoryOutputDtoPagedListHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1ServicesCategories(data: $OpenApiTs['/api/v1/services/categories']['get']['req'] = {}): CancelablePromise<$OpenApiTs['/api/v1/services/categories']['get']['res'][200]> {
@@ -555,7 +555,7 @@ export class SubscriptionsService {
      * Gets Subscription
      * Gets all Subscriptions for User<br />
      * A Subscription is a contract between a User and a Legal Practitioner for a given Service. <br />
-     * A Subcription can allow multiple Appointments to be booked based on the Service Variation's Package bought by the user. <br />
+     * A Subscription can allow multiple Appointments to be booked based on the Service Variation's Package bought by the user. <br />
      * Simply put, a Subscription is a purchased Service Variation Package.
      * @param data The data for the request.
      * @param data.practitionerUserId Legal Practitioner User Id
@@ -566,11 +566,11 @@ export class SubscriptionsService {
      * * `0` - Pending,
      * * `1` - Active,
      * * `2` - Closed,
-     * @param data.disablePagination If set to true, the default paga size of 20 will be ignored if no PageSize is specified.
+     * @param data.disablePagination If set to true, the default page size of 20 will be ignored if no PageSize is specified.
      * @param data.page Page number of record. NB: Zero indexed based
      * @param data.pageSize Page size of records. Default to 20
      * @param data.skipCount
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<LegalConnect_Shared_Core_Paging_PagedList_1__Developer_Dashboard_HttpAggregator_Contracts_Subscriptions_SubscriptionOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null____LegalConnect_Shared_Core__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @returns SubscriptionOutputDtoPagedListHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1SubscriptionsUsers(data: $OpenApiTs['/api/v1/subscriptions/users']['get']['req']): CancelablePromise<$OpenApiTs['/api/v1/subscriptions/users']['get']['res'][200]> {
@@ -600,7 +600,7 @@ export class SubscriptionsService {
      * Gets Subscription Available
      * Gets active Subscription between User and Legal Practitioner for a given Service Variations <br />
      * A Subscription is a contract between a User and a Legal Practitioner for a given Service. <br />
-     * A Subcription can allow multiple Appointments to be booked based on the Service Variation's Package bought by the user. <br />
+     * A Subscription can allow multiple Appointments to be booked based on the Service Variation's Package bought by the user. <br />
      * Simply put, a Subscription is a purchased Service Variation Package.
      * @param data The data for the request.
      * @param data.practitionerUserId Legal Practitioner User Id
@@ -611,11 +611,11 @@ export class SubscriptionsService {
      * * `0` - Pending,
      * * `1` - Active,
      * * `2` - Closed,
-     * @param data.disablePagination If set to true, the default paga size of 20 will be ignored if no PageSize is specified.
+     * @param data.disablePagination If set to true, the default page size of 20 will be ignored if no PageSize is specified.
      * @param data.page Page number of record. NB: Zero indexed based
      * @param data.pageSize Page size of records. Default to 20
      * @param data.skipCount
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<LegalConnect_Shared_Core_Paging_PagedList_1__Developer_Dashboard_HttpAggregator_Contracts_Subscriptions_SubscriptionOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null____LegalConnect_Shared_Core__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @returns SubscriptionOutputDtoPagedListHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static getApiV1SubscriptionsAvailable(data: $OpenApiTs['/api/v1/subscriptions/available']['get']['req']): CancelablePromise<$OpenApiTs['/api/v1/subscriptions/available']['get']['res'][200]> {
@@ -643,10 +643,10 @@ export class SubscriptionsService {
     
     /**
      * Create Subscription
-     * Create a Subscription will create a user's fisrt Appointment with the Legal Practitioner.
+     * Create a Subscription will create a user's first Appointment with the Legal Practitioner.
      * @param data The data for the request.
      * @param data.formData
-     * @returns LegalConnect_Shared_Core_Http_HttpAPIResponseWrapper_1<Developer_Dashboard_HttpAggregator_Contracts_Subscriptions_SubscriptionOutputDto__Developer_Dashboard_HttpAggregator__Version_1_0_0_0__Culture_neutral__PublicKeyToken_null_> Success
+     * @returns SubscriptionOutputDtoHttpAPIResponseWrapper Success
      * @throws ApiError
      */
     public static postApiV1Subscriptions(data: $OpenApiTs['/api/v1/subscriptions']['post']['req'] = {}): CancelablePromise<$OpenApiTs['/api/v1/subscriptions']['post']['res'][200]> {
