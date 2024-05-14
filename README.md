@@ -17,11 +17,11 @@
 
 
 > NB:
-<br/>
-The react app was created using [Vite](https://vitejs.dev/guide/#scaffolding-your-first-vite-project) 
-<br/>
-The API client services were generated using [hey-api/openapi-ts](https://heyapi.vercel.app/openapi-ts/get-started.html) library for a typescript axios client. 
-<br/>
-Bootstrap is the css library used and some of the default styling are overridden in the App.scss which is latter converted to App.css when running the dev script. See package.json
+> <br/>
+> The react app was created using [Vite](https://vitejs.dev/guide/#scaffolding-your-first-vite-project) 
+> <br/>
+> The API client services were generated using [hey-api/openapi-ts](https://heyapi.vercel.app/openapi-ts/get-started.html) library for a typescript axios client. 
+> <br/>
+> Bootstrap is the css library used and some of the default styling are overridden in the App.scss which is latter converted to App.css when running the dev script. See package.json
 
 
