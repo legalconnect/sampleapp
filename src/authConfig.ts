@@ -4,7 +4,7 @@ const scopes = "legalConnect_developer_api_gateway legalConnect_lawyer_api legal
 
 const authConfig: UserManagerSettings = {
     // staging
-    authority: 'https://staging.legalconnectonline.com/legalconnect-identityserver', //Replace with your issuer URL
+    authority: 'https://auth.legalconnectonline.com', //Replace with your issuer URL
     client_id: '', //Replace with your client id
     redirect_uri: 'http://localhost:3000/callback', //Replace with your login redirect url
     response_type: 'code',
