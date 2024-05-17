@@ -93,7 +93,7 @@ export default function DocumentPage() {
           })),
           expiresOn: null,
           signByUltimatum: null,
-          redirectUrl: "http://localhost:3003/documents",
+          redirectUrl: "http://localhost:3000/documents",
           linkExpiration: 10,
         },
       });

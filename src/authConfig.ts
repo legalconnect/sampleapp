@@ -1,6 +1,6 @@
 import { UserManagerSettings } from "oidc-client-ts";
 
-const scopes = "legalConnect_developer_api_gateway legalConnect_lawyer_api legalConnect_appointment_api legalConnect_document_api legalConnect_identity_server_api legalConnect_payment_api legalConnect_client_api openid profile email"
+const scopes = "legalConnect_developer_api_gateway legalConnect_clients_api_gateway legalConnect_lawyer_api legalConnect_appointment_api legalConnect_document_api legalConnect_identity_server_api legalConnect_payment_api legalConnect_client_api openid profile email"
 
 const authConfig: UserManagerSettings = {
     // staging

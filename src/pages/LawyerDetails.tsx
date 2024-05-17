@@ -713,7 +713,7 @@ export default function LawyerDetails() {
           serviceId: mainState?.selectedService?.serviceId ?? 0,
           variationId: mainState?.selectedServiceVariation?.id ?? 0,
           packageId: mainState?.appointment?.selectedPackageId ?? 0,
-          callbackUrl: "http://localhost:3003/appointments",
+          callbackUrl: "http://localhost:3000/appointments",
           files: mainState?.appointment?.files,
         },
       });
